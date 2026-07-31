@@ -858,6 +858,7 @@ async function bootstrap() {
     return seed;
   } catch (e) {
     console.error('Bootstrap failed:', e);
+    $('#sync-status').textContent = '❌ ' + (e.message || e.code || JSON.stringify(e).slice(0,60));
     setSyncStatus(false);
     toast('⚠️ 云端连接失败，使用本地缓存');
     return null;
