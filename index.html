@@ -761,13 +761,13 @@ function escHtml(s) {
 // ── Cloud Sync Engine ──
 let cloudReady = false;
 
-function setSyncStatus(online) {
+function setSyncStatus(online, msg) {
   cloudReady = online;
   const el = $('#sync-status');
   el.className = 'sync-status ' + (online ? 'online' : 'offline');
   el.innerHTML = online
-    ? '<span class="sync-dot"></span> 已同步'
-    : '<span class="sync-dot"></span> 离线缓存中';
+    ? '<span class="sync-dot"></span> ' + (msg || '已同步')
+    : '<span class="sync-dot"></span> ' + (msg || '离线缓存中');
 }
 
 async function loadFromCloud(module) {
@@ -858,8 +858,7 @@ async function bootstrap() {
     return seed;
   } catch (e) {
     console.error('Bootstrap failed:', e);
-    $('#sync-status').textContent = '❌ ' + (e.message || e.code || JSON.stringify(e).slice(0,60));
-    setSyncStatus(false);
+    setSyncStatus(false, '❌ ' + (e.message || e.code || JSON.stringify(e).slice(0,60)));
     toast('⚠️ 云端连接失败，使用本地缓存');
     return null;
   }
