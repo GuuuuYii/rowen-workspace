@@ -834,29 +834,30 @@ function setupRealtime() {
 async function bootstrap() {
   try {
     const { data, error } = await supabase.from('dashboard_data').select('module,data');
-    if (!error && data && data.length > 0) {
-      setSyncStatus(true);
-      setupRealtime();
-      // Load from cloud
-      const seed = {};
-      data.forEach(r => { if (Array.isArray(r.data)) seed[r.module] = r.data; });
-      return seed;
-    }
-    // No cloud data yet — migrate localStorage to cloud
+    if (error) throw error;
     setSyncStatus(true);
     setupRealtime();
-    const modules = ['todos','life','travel','mood','exercise','weight'];
     const seed = {};
+    if (data) data.forEach(r => { if (Array.isArray(r.data)) seed[r.module] = r.data; });
+    // If no cloud data, migrate localStorage
+    const modules = ['todos','life','travel','mood','exercise','weight'];
+    let hasLocal = false;
     for (const m of modules) {
-      const local = loadLocal(m);
-      seed[m] = local;
-      if (local.length > 0) {
-        await supabase.from('dashboard_data').upsert({ module: m, data: local, updated_at: new Date() }, { onConflict: 'module' });
-      }
+      if (!seed[m]) { const local = loadLocal(m); seed[m] = local; if (local.length > 0) hasLocal = true; }
     }
-    toast('📡 本地数据已同步至云端');
+    if (hasLocal) {
+      for (const m of modules) {
+        if (seed[m].length > 0) {
+          const { error: upsertErr } = await supabase.from('dashboard_data')
+            .upsert({ module: m, data: seed[m], updated_at: new Date() }, { onConflict: 'module' });
+          if (upsertErr) console.warn('Upsert failed for', m, upsertErr);
+        }
+      }
+      toast('📡 本地数据已同步至云端');
+    }
     return seed;
-  } catch {
+  } catch (e) {
+    console.error('Bootstrap failed:', e);
     setSyncStatus(false);
     toast('⚠️ 云端连接失败，使用本地缓存');
     return null;
