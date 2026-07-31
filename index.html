@@ -732,7 +732,7 @@
 // ── Supabase Config ──
 const SUPABASE_URL = 'https://ubqmtpvbkrdgmijfppir.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_72YhJ6ANGV_sxAVLkdEuiw_zs58Kd89';
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 // ── Utils ──
 const $ = s => document.querySelector(s);
@@ -773,7 +773,7 @@ function setSyncStatus(online, msg) {
 async function loadFromCloud(module) {
   if (!cloudReady) return loadLocal(module);
   try {
-    const { data, error } = await supabase
+    const { data, error } = await db
       .from('dashboard_data').select('data').eq('module', module).maybeSingle();
     if (error) throw error;
     if (data) {
@@ -791,7 +791,7 @@ async function saveToCloud(module, arr) {
   saveLocal(module, arr);
   if (!cloudReady) return;
   try {
-    const { error } = await supabase
+    const { error } = await db
       .from('dashboard_data').upsert({ module, data: arr, updated_at: new Date() }, { onConflict: 'module' });
     if (error) throw error;
     setSyncStatus(true);
@@ -807,7 +807,7 @@ function loadLocal(k) { try { return JSON.parse(localStorage.getItem(LS_PREFIX +
 
 // ── Real-time Subscription ──
 function setupRealtime() {
-  supabase
+  db
     .channel('dashboard-sync')
     .on('postgres_changes',
       { event: '*', schema: 'public', table: 'dashboard_data' },
@@ -833,7 +833,7 @@ function setupRealtime() {
 // ── Cloud Bootstrap & Migration ──
 async function bootstrap() {
   try {
-    const { data, error } = await supabase.from('dashboard_data').select('module,data');
+    const { data, error } = await db.from('dashboard_data').select('module,data');
     if (error) throw error;
     setSyncStatus(true);
     setupRealtime();
@@ -848,7 +848,7 @@ async function bootstrap() {
     if (hasLocal) {
       for (const m of modules) {
         if (seed[m].length > 0) {
-          const { error: upsertErr } = await supabase.from('dashboard_data')
+          const { error: upsertErr } = await db.from('dashboard_data')
             .upsert({ module: m, data: seed[m], updated_at: new Date() }, { onConflict: 'module' });
           if (upsertErr) console.warn('Upsert failed for', m, upsertErr);
         }
