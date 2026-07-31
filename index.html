@@ -391,6 +391,94 @@
     border-radius: 50%; animation: spin .6s linear infinite; margin-right: 8px;
   }
   @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ── Ivy Lee Todo System ── */
+  .todo-tabs { display: flex; gap: 4px; background: var(--bg); border-radius: 20px; padding: 3px; }
+  .todo-tab {
+    border: none; background: none; font-size: 12px; color: var(--text-soft);
+    padding: 5px 14px; border-radius: 18px; cursor: pointer; font-weight: 500;
+    transition: all var(--transition); line-height: 1.4;
+  }
+  .todo-tab.active { background: #fff; color: var(--text); box-shadow: 0 1px 3px rgba(0,0,0,.06); }
+  .todo-migrate {
+    font-size: 11px; color: var(--text-soft); padding: 6px 10px;
+    background: #f0f9f8; border-radius: var(--radius-xs); margin-bottom: 12px;
+    animation: fadeSlideIn .35s ease;
+  }
+  .todo-migrate b { color: #00A19B; }
+  .todo-list { display: flex; flex-direction: column; gap: 6px; min-height: 40px; }
+  .todo-item {
+    display: flex; align-items: flex-start; gap: 8px;
+    padding: 10px; border-radius: var(--radius-xs);
+    transition: all var(--transition); cursor: grab;
+    animation: fadeSlideIn .35s ease both; position: relative;
+  }
+  .todo-item:hover { background: rgba(0,161,155,.04); }
+  .todo-item.dragging { opacity: .5; background: rgba(0,161,155,.08); }
+  .todo-item.drag-over { border-top: 2px solid #00A19B; }
+  .todo-item.done { opacity: .55; }
+  .todo-item.done .todo-text { text-decoration: line-through; color: var(--text-light); text-decoration-color: var(--text-light); text-decoration-thickness: .8px; }
+  .todo-drag {
+    width: 16px; height: 20px; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: 2px;
+    color: var(--text-light); cursor: grab; flex-shrink: 0; padding-top: 2px;
+    opacity: 0; transition: opacity var(--transition);
+  }
+  .todo-item:hover .todo-drag { opacity: 1; }
+  .todo-drag span { width: 10px; height: 1.5px; background: var(--text-light); border-radius: 1px; display: block; }
+  .todo-cb {
+    appearance: none; -webkit-appearance: none;
+    width: 18px; height: 18px; border: 1.5px solid #c0d6d4; border-radius: 50%;
+    cursor: pointer; flex-shrink: 0; margin-top: 1px; transition: all var(--transition);
+    position: relative;
+  }
+  .todo-cb:hover { border-color: #00A19B; }
+  .todo-cb:checked { background: #00A19B; border-color: #00A19B; }
+  .todo-cb:checked::after {
+    content: ''; position: absolute; top: 3px; left: 5px;
+    width: 5px; height: 8px; border: solid #fff;
+    border-width: 0 2px 2px 0; transform: rotate(45deg);
+  }
+  .todo-body { flex: 1; min-width: 0; }
+  .todo-text { font-size: 13px; color: var(--text); word-break: break-word; }
+  .todo-meta { display: flex; gap: 10px; margin-top: 2px; font-size: 11px; color: var(--text-light); }
+  .todo-time { color: #00A19B; }
+  .todo-sub-count { cursor: pointer; }
+  .todo-sub-count:hover { color: #00A19B; }
+  .todo-actions { display: flex; gap: 2px; flex-shrink: 0; opacity: 0; transition: opacity var(--transition); }
+  .todo-item:hover .todo-actions { opacity: 1; }
+  .todo-actions .btn-del { opacity: .5; }
+  .todo-actions .btn-del:hover { opacity: 1; }
+
+  /* Subtasks */
+  .todo-subtasks {
+    margin-left: 42px; border-left: 1.5px solid #e0ecea; padding-left: 12px;
+    display: none; margin-bottom: 4px;
+  }
+  .todo-subtasks.show { display: block; animation: fadeSlideIn .3s ease; }
+  .todo-sub-item {
+    display: flex; align-items: center; gap: 8px; padding: 4px 0; font-size: 12px;
+  }
+  .todo-sub-item .todo-cb { width: 15px; height: 15px; }
+  .todo-sub-item .todo-cb:checked::after { top: 2px; left: 4px; width: 4px; height: 7px; }
+  .todo-sub-item.done .sub-text { text-decoration: line-through; color: var(--text-light); }
+  .sub-text { flex: 1; color: var(--text-soft); word-break: break-word; }
+  .sub-add-row {
+    display: flex; gap: 6px; padding: 4px 0; margin-left: 42px;
+    border-left: 1.5px solid #e0ecea; padding-left: 12px; margin-top: 2px;
+  }
+  .sub-add-row input {
+    flex: 1; border: none; border-bottom: 1px solid var(--border); font-size: 12px;
+    padding: 3px 0; background: none; outline: none; color: var(--text);
+  }
+  .sub-add-row input:focus { border-color: #00A19B; }
+
+  .todo-footer {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--border);
+  }
+  .todo-sub-input { margin-top: 8px; display: none; }
+  .todo-sub-input.show { display: flex; gap: 6px; animation: fadeSlideIn .25s ease; }
 </style>
 </head>
 <body>
@@ -413,34 +501,35 @@
 
   <!-- Grid -->
   <div class="grid">
-    <!-- 1. 今日计划 -->
-    <div class="card" id="card-plan">
+    <!-- 1. Ivy Lee 今日/明日待办 -->
+    <div class="card" id="card-ivylee">
       <div class="card-header">
-        <div class="card-title"><span class="dot" style="background:var(--accent)"></span>今日计划</div>
-        <span class="card-count" id="plan-count">0</span>
+        <div class="card-title"><span class="dot" style="background:#00A19B"></span>Day Todo</div>
+        <div class="todo-tabs" id="todo-tabs">
+          <button class="todo-tab active" data-day="today">今天</button>
+          <button class="todo-tab" data-day="tomorrow">明天</button>
+        </div>
+      </div>
+      <div class="todo-migrate" id="todo-migrate" style="display:none">
+        <span>📥 昨天 <b id="migrate-count">0</b> 项未完成，已移入今天</span>
       </div>
       <div class="input-row">
-        <input type="time" id="plan-time" value="09:00" style="width:90px;flex:none;">
-        <input type="text" id="plan-input" placeholder="添加计划..." maxlength="40">
-        <button class="btn-add" onclick="addPlan()">+</button>
+        <input type="time" id="todo-time" value="" placeholder="⏰" style="width:74px;flex:none;font-size:12px;">
+        <input type="text" id="todo-input" placeholder="今天要做什么？" maxlength="60">
+        <button class="btn-add" id="btn-todo-add" onclick="addTodo()">+</button>
       </div>
-      <div class="plan-blocks" id="plan-list"></div>
+      <div class="todo-list" id="todo-list"></div>
+      <div class="todo-footer">
+        <button class="btn-sm" id="btn-add-sub" onclick="toggleSubInput()" style="font-size:11px">+ 子任务</button>
+        <span style="font-size:11px;color:var(--text-light)" id="todo-stats"></span>
+      </div>
+      <div class="todo-sub-input" id="todo-sub-input" style="display:none">
+        <input type="text" id="sub-input" placeholder="子任务描述..." maxlength="40">
+        <button class="btn-add" style="width:28px;height:28px;font-size:14px;" onclick="addSubToActive()">+</button>
+      </div>
     </div>
 
-    <!-- 2. 工作待办 -->
-    <div class="card" id="card-work">
-      <div class="card-header">
-        <div class="card-title"><span class="dot" style="background:#c8b4a0"></span>工作待办</div>
-        <span class="card-count" id="work-count"></span>
-      </div>
-      <div class="input-row">
-        <input type="text" id="work-input" placeholder="添加工作任务..." maxlength="50">
-        <button class="btn-add" onclick="addWork()">+</button>
-      </div>
-      <div id="work-list"></div>
-    </div>
-
-    <!-- 3. 生活清单 -->
+    <!-- 2. 生活清单 -->
     <div class="card" id="card-life">
       <div class="card-header">
         <div class="card-title"><span class="dot" style="background:#c0ccb8"></span>生活清单</div>
@@ -662,8 +751,7 @@ function setupRealtime() {
         const d = payload.new.data;
         if (!Array.isArray(d)) return;
         switch (m) {
-          case 'plan': plans = d; renderPlans(); break;
-          case 'work': works = d; renderWorks(); break;
+          case 'todos': todos = d; activeDay = currentDay(); renderTodos(); break;
           case 'life': lifeItems = d; renderLife(); break;
           case 'travel': travels = d; renderTravels(); break;
           case 'mood': moods = d; renderMoods(); break;
@@ -691,7 +779,7 @@ async function bootstrap() {
     // No cloud data yet — migrate localStorage to cloud
     setSyncStatus(true);
     setupRealtime();
-    const modules = ['plan','work','life','travel','mood','exercise','weight'];
+    const modules = ['todos','life','travel','mood','exercise','weight'];
     const seed = {};
     for (const m of modules) {
       const local = loadLocal(m);
@@ -719,66 +807,192 @@ function updateHeader() {
 }
 
 // ── Data ──
-let plans = [], works = [], lifeItems = [], travels = [], moods = [], exercises = [], weights = [];
-let selectedMood = '';
+let todos = [], lifeItems = [], travels = [], moods = [], exercises = [], weights = [];
+let selectedMood = '', activeDay = 'today', activeSubTarget = null;
 
-// ── 1. Today's Plan ──
-function renderPlans() {
-  const list = $('#plan-list');
-  plans.sort((a,b) => a.time.localeCompare(b.time));
-  list.innerHTML = plans.map((p,i) => `
-    <div class="plan-block" style="animation-delay:${i*.04}s">
-      <div class="pb-time">${p.time}</div>
-      <div class="pb-content">
-        <span>${escHtml(p.text)}</span>
-        <button class="btn-del" style="opacity:.5" onclick="removePlan(${i})">×</button>
+function currentDay() {
+  const h = new Date().getHours();
+  return h >= 18 ? 'tomorrow' : 'today';
+}
+function yesterdayStr() {
+  const d = new Date(); d.setDate(d.getDate()-1);
+  return fmtDate(d);
+}
+
+// ── 1. Ivy Lee Todo System ──
+function renderTodos() {
+  const list = $('#todo-list');
+  const todayStr = fmtDate(new Date());
+  const ydayStr = yesterdayStr();
+
+  // Auto-migrate: yesterday's unfinished → today
+  let migrated = 0;
+  todos.forEach(t => {
+    if (!t.done && t.date === ydayStr && t.day === 'today') {
+      t.date = todayStr; t.migrated = true; migrated++;
+    }
+  });
+  if (migrated > 0) {
+    saveToCloud('todos', todos);
+    $('#todo-migrate').style.display = ''; $('#migrate-count').textContent = migrated;
+    setTimeout(() => { $('#todo-migrate').style.display = 'none'; }, 5000);
+  }
+
+  // Today's unfinished → auto-set to today
+  todos.forEach(t => {
+    if (!t.done && t.date === todayStr && !t.migrated) { t.day = 'today'; }
+  });
+
+  const dayTodos = todos.filter(t => t.day === activeDay);
+  dayTodos.sort((a,b) => a.order - b.order);
+
+  list.innerHTML = dayTodos.map((t,i) => {
+    const doneSubs = (t.subtasks||[]).filter(s=>s.done).length;
+    const totalSubs = (t.subtasks||[]).length;
+    return `
+      <div class="todo-item ${t.done?'done':''}" draggable="true"
+           data-id="${t.id}" data-idx="${i}"
+           ondragstart="onDragStart(event)" ondragover="onDragOver(event)"
+           ondragend="onDragEnd(event)" ondrop="onDrop(event)">
+        <div class="todo-drag"><span></span><span></span></div>
+        <input type="checkbox" class="todo-cb" ${t.done?'checked':''} onchange="toggleTodo('${t.id}')">
+        <div class="todo-body">
+          <div class="todo-text">${escHtml(t.text)}</div>
+          <div class="todo-meta">
+            ${t.time ? `<span class="todo-time">⏰ ${t.time}</span>` : ''}
+            ${totalSubs > 0 ? `<span class="todo-sub-count" onclick="toggleSubtaskView('${t.id}')">📎 ${doneSubs}/${totalSubs}</span>` : ''}
+            ${t.migrated ? '<span style="color:#00A19B">📥 昨日移入</span>' : ''}
+          </div>
+        </div>
+        <div class="todo-actions">
+          <button class="btn-del" onclick="event.stopPropagation();startAddSub('${t.id}')" title="添加子任务">+</button>
+          <button class="btn-del" onclick="event.stopPropagation();removeTodo('${t.id}')">×</button>
+        </div>
       </div>
-    </div>
-  `).join('');
-  if (!plans.length) list.innerHTML = '<div class="empty-state">今天还没有计划，开始安排吧 ✨</div>';
-  $('#plan-count').textContent = `${plans.length}项`;
-}
-async function addPlan() {
-  const time = $('#plan-time').value;
-  const text = $('#plan-input').value.trim();
-  if (!text) return toast('请输入计划内容');
-  if (plans.some(p => p.time === time)) return toast('该时间段已有计划');
-  plans.push({ time, text, id: Date.now() });
-  await saveToCloud('plan', plans); renderPlans();
-  $('#plan-input').value = ''; toast('计划已添加');
-}
-async function removePlan(i) {
-  const el = $('#plan-list').children[i];
-  if (el) { el.style.animation = 'fadeSlideOut .25s ease forwards'; }
-  setTimeout(async () => { plans.splice(i,1); await saveToCloud('plan', plans); renderPlans(); }, 250);
+      <div class="todo-subtasks ${activeSubTarget===t.id?'show':''}" id="subs-${t.id}">
+        ${(t.subtasks||[]).map(s => `
+          <div class="todo-sub-item ${s.done?'done':''}">
+            <input type="checkbox" class="todo-cb" ${s.done?'checked':''} onchange="toggleSub('${t.id}','${s.id}')">
+            <span class="sub-text">${escHtml(s.text)}</span>
+            <button class="btn-del" style="opacity:.4;width:16px;height:16px;font-size:11px" onclick="removeSub('${t.id}','${s.id}')">×</button>
+          </div>
+        `).join('')}
+        <div class="todo-sub-item" style="opacity:.6;cursor:pointer" onclick="startAddSub('${t.id}')">+ 添加子任务</div>
+      </div>
+    `;
+  }).join('');
+
+  if (!dayTodos.length) {
+    const msg = activeDay === 'today' ? '今天暂时空白，添加你的第一个任务 ✦' : '为明天做好准备 🌙';
+    list.innerHTML = `<div class="empty-state">${msg}</div>`;
+  }
+
+  const done = dayTodos.filter(t=>t.done).length;
+  $('#todo-stats').textContent = dayTodos.length ? `完成 ${done}/${dayTodos.length}` : '';
 }
 
-// ── 2. Work Todos ──
-function renderWorks() {
-  const list = $('#work-list');
-  const done = works.filter(w=>w.done).length;
-  list.innerHTML = works.map((w,i) => `
-    <div class="list-item ${w.done?'done':''}" style="animation-delay:${i*.04}s">
-      <input type="checkbox" ${w.done?'checked':''} onchange="toggleWork(${i})">
-      <span class="item-text">${escHtml(w.text)}</span>
-      <button class="btn-del" onclick="event.stopPropagation();removeWork(${i})">×</button>
-    </div>
-  `).join('');
-  if (!works.length) list.innerHTML = '<div class="empty-state">暂无待办，清爽的开始</div>';
-  $('#work-count').textContent = works.length ? `${done}/${works.length}` : '';
+async function addTodo() {
+  const text = $('#todo-input').value.trim();
+  if (!text) return toast('请输入任务');
+  const time = $('#todo-time').value;
+  const todayStr = fmtDate(new Date());
+  const maxOrder = Math.max(...todos.filter(t=>t.day===activeDay).map(t=>t.order), 0);
+  todos.push({
+    id: Date.now().toString(), text, time, day: activeDay, date: todayStr,
+    done: false, order: maxOrder + 1, subtasks: [], note: '', migrated: false
+  });
+  await saveToCloud('todos', todos); renderTodos();
+  $('#todo-input').value = ''; $('#todo-time').value = '';
+  activeSubTarget = null; toast('已添加');
 }
-async function addWork() {
-  const text = $('#work-input').value.trim();
-  if (!text) return toast('请输入任务内容');
-  works.unshift({ text, done: false, id: Date.now() });
-  await saveToCloud('work', works); renderWorks();
-  $('#work-input').value = ''; toast('任务已添加');
+
+async function toggleTodo(id) {
+  const t = todos.find(t=>t.id===id);
+  if (t) { t.done = !t.done; await saveToCloud('todos', todos); renderTodos(); }
 }
-async function toggleWork(i) { works[i].done = !works[i].done; await saveToCloud('work', works); renderWorks(); }
-async function removeWork(i) {
-  const el = $('#work-list').children[i];
-  if (el) el.classList.add('removing');
-  setTimeout(async () => { works.splice(i,1); await saveToCloud('work', works); renderWorks(); }, 250);
+
+async function removeTodo(id) {
+  const el = document.querySelector(`.todo-item[data-id="${id}"]`);
+  if (el) el.style.animation = 'fadeSlideOut .25s ease forwards';
+  setTimeout(async () => {
+    todos = todos.filter(t=>t.id!==id);
+    await saveToCloud('todos', todos); renderTodos();
+  }, 250);
+}
+
+// Subtasks
+async function toggleSub(todoId, subId) {
+  const t = todos.find(t=>t.id===todoId);
+  if (!t) return;
+  const s = t.subtasks.find(s=>s.id===subId);
+  if (s) { s.done = !s.done; await saveToCloud('todos', todos); renderTodos(); }
+}
+async function removeSub(todoId, subId) {
+  const t = todos.find(t=>t.id===todoId);
+  if (t) { t.subtasks = t.subtasks.filter(s=>s.id!==subId); await saveToCloud('todos', todos); renderTodos(); }
+}
+function toggleSubtaskView(id) {
+  activeSubTarget = (activeSubTarget === id) ? null : id;
+  renderTodos();
+}
+function startAddSub(id) {
+  activeSubTarget = id;
+  renderTodos();
+  setTimeout(() => { const el = document.querySelector(`#subs-${id} .todo-sub-item:last-child`); if(el) el.scrollIntoView({behavior:'smooth'}); }, 100);
+}
+function toggleSubInput() {
+  const el = $('#todo-sub-input'); el.classList.toggle('show');
+  if (el.classList.contains('show')) setTimeout(() => $('#sub-input').focus(), 100);
+}
+async function addSubToActive() {
+  const text = $('#sub-input').value.trim();
+  if (!text || !activeSubTarget) return toast('请先展开一个任务的子任务列表，或输入子任务内容');
+  const t = todos.find(t=>t.id===activeSubTarget);
+  if (!t) return;
+  if (!t.subtasks) t.subtasks = [];
+  t.subtasks.push({ id: Date.now().toString(), text, done: false });
+  await saveToCloud('todos', todos); renderTodos();
+  $('#sub-input').value = ''; toast('子任务已添加');
+}
+
+// Tab switching
+document.querySelectorAll('.todo-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.todo-tab').forEach(t=>t.classList.remove('active'));
+    tab.classList.add('active');
+    activeDay = tab.dataset.day;
+    activeSubTarget = null;
+    renderTodos();
+  });
+});
+
+// Drag & Drop
+let dragId = null;
+function onDragStart(e) {
+  dragId = e.target.closest('.todo-item').dataset.id;
+  e.target.closest('.todo-item').classList.add('dragging');
+  e.dataTransfer.effectAllowed = 'move';
+}
+function onDragOver(e) { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; }
+function onDragEnd(e) { e.target.closest('.todo-item')?.classList.remove('dragging'); dragId = null; }
+async function onDrop(e) {
+  e.preventDefault();
+  const targetEl = e.target.closest('.todo-item');
+  if (!targetEl || !dragId) return;
+  const targetId = targetEl.dataset.id;
+  if (dragId === targetId) return;
+  const dragged = todos.find(t=>t.id===dragId);
+  const target = todos.find(t=>t.id===targetId);
+  if (!dragged || !target) return;
+  const sameDay = todos.filter(t=>t.day===activeDay).sort((a,b)=>a.order-b.order);
+  const dragIdx = sameDay.findIndex(t=>t.id===dragId);
+  const targetIdx = sameDay.findIndex(t=>t.id===targetId);
+  sameDay.splice(dragIdx, 1);
+  sameDay.splice(targetIdx, 0, dragged);
+  sameDay.forEach((t,i) => t.order = i + 1);
+  // Update main array
+  sameDay.forEach(t => { const idx = todos.findIndex(x=>x.id===t.id); if(idx>=0) todos[idx].order = t.order; });
+  await saveToCloud('todos', todos); renderTodos();
 }
 
 // ── 3. Life List ──
@@ -1012,7 +1226,7 @@ async function addWeight() {
 updateHeader();
 
 // Show loading state
-['plan-list','work-list','life-daily','life-shopping','life-other','travel-list','mood-history','weight-history'].forEach(id => {
+['todo-list','life-daily','life-shopping','life-other','travel-list','mood-history','weight-history'].forEach(id => {
   const el = $('#' + id);
   if (el) el.innerHTML = '<div class="card-loading">加载中…</div>';
 });
@@ -1022,8 +1236,7 @@ updateHeader();
   const seed = await bootstrap();
 
   if (seed) {
-    plans = seed.plan || [];
-    works = seed.work || [];
+    todos = seed.todos || [];
     lifeItems = seed.life || [];
     travels = seed.travel || [];
     moods = seed.mood || [];
@@ -1031,8 +1244,7 @@ updateHeader();
     weights = seed.weight || [];
   } else {
     // Fallback to localStorage
-    plans = loadLocal('plan');
-    works = loadLocal('work');
+    todos = loadLocal('todos');
     lifeItems = loadLocal('life');
     travels = loadLocal('travel');
     moods = loadLocal('mood');
@@ -1040,17 +1252,21 @@ updateHeader();
     weights = loadLocal('weight');
   }
 
-  renderPlans(); renderWorks(); renderLife(); renderTravels();
+  renderTodos(); renderLife(); renderTravels();
   renderMoods(); renderExercise(); renderWeight();
 })();
 
 // ── Enter key handlers ──
-$('#plan-input').addEventListener('keydown', e => { if (e.key==='Enter') addPlan(); });
-$('#work-input').addEventListener('keydown', e => { if (e.key==='Enter') addWork(); });
+$('#todo-input').addEventListener('keydown', e => { if (e.key==='Enter') addTodo(); });
 $('#life-input').addEventListener('keydown', e => { if (e.key==='Enter') addLife(); });
 $('#weight-input').addEventListener('keydown', e => { if (e.key==='Enter') addWeight(); });
 
-console.log('🌿 Rowen\'s Space — Supabase 已连接');
+$('#sub-input').addEventListener('keydown', e => { if (e.key==='Enter') addSubToActive(); });
+
+activeDay = currentDay();
+document.querySelector('.todo-tab[data-day="'+activeDay+'"]')?.classList.add('active');
+
+console.log('🌿 Rowen\'s Space — Ivy Lee 已就绪');
 </script>
 </body>
 </html>
