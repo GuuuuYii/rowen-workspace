@@ -12,664 +12,331 @@
   --border: #e8e8e4; --accent: #8cbf8c; --accent-bg: #f0f7f0;
   --radius: 14px; --radius-sm: 10px; --radius-xs: 6px;
   --shadow: 0 1px 3px rgba(0,0,0,.04), 0 1px 2px rgba(0,0,0,.02);
-  --shadow-hover: 0 4px 16px rgba(0,0,0,.05), 0 2px 4px rgba(0,0,0,.02);
   --transition: .25s cubic-bezier(.4,0,.2,1);
 }
 * { margin:0; padding:0; box-sizing:border-box; }
-body {
-  font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif;
-  background: var(--bg); color: var(--text); min-height: 100vh; -webkit-font-smoothing: antialiased;
-}
-::-webkit-scrollbar { width: 3px; }
-::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; -webkit-font-smoothing: antialiased; }
+::-webkit-scrollbar { width: 3px; } ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
 
-/* ── Layout ── */
 .app { display: flex; min-height: 100vh; }
-.sidebar {
-  width: 220px; background: var(--sidebar); padding: 28px 0;
-  display: flex; flex-direction: column; border-right: 1px solid var(--border);
-  flex-shrink: 0; position: sticky; top: 0; height: 100vh;
-}
+.sidebar { width: 220px; background: var(--sidebar); padding: 28px 0; display: flex; flex-direction: column; border-right: 1px solid var(--border); flex-shrink: 0; position: sticky; top: 0; height: 100vh; }
 .sidebar-logo { padding: 0 20px 24px; border-bottom: 1px solid var(--border); margin-bottom: 16px; }
-.sidebar-logo h2 { font-size: 18px; font-weight: 600; letter-spacing: -.3px; }
+.sidebar-logo h2 { font-size: 18px; font-weight: 600; }
 .sidebar-logo .sub { font-size: 11px; color: var(--text-light); }
 .sidebar-nav { flex: 1; padding: 0 12px; display: flex; flex-direction: column; gap: 2px; }
-.nav-item {
-  display: flex; align-items: center; gap: 10px; padding: 10px 12px;
-  border-radius: var(--radius-xs); font-size: 13px; color: var(--text-soft);
-  cursor: pointer; transition: all var(--transition); border: none; background: none;
-  width: 100%; text-align: left; font-family: inherit;
-}
+.nav-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: var(--radius-xs); font-size: 13px; color: var(--text-soft); cursor: pointer; transition: all var(--transition); border: none; background: none; width: 100%; text-align: left; font-family: inherit; }
 .nav-item:hover { background: rgba(0,0,0,.04); color: var(--text); }
 .nav-item.active { background: var(--accent-bg); color: var(--text); font-weight: 500; }
-.nav-item .ni-icon { font-size: 16px; width: 20px; text-align: center; }
-.nav-item .ni-badge { font-size: 10px; background: var(--accent); color: #fff; padding: 1px 6px; border-radius: 10px; margin-left: auto; }
 .sidebar-foot { padding: 16px 20px; border-top: 1px solid var(--border); font-size: 11px; color: var(--text-light); }
-.sync-dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; margin-right: 4px; }
-.sync-online .sync-dot { background: #8cbf8c; }
-.sync-offline .sync-dot { background: #d88; animation: pulse2 1.5s ease infinite; }
-@keyframes pulse2 { 0%,100%{opacity:1} 50%{opacity:.3} }
-
-/* ── Main Content ── */
-.main { flex: 1; padding: 32px 36px 60px; overflow-y: auto; max-width: 900px; }
-.main-header { margin-bottom: 28px; }
-.main-header h1 { font-size: 24px; font-weight: 500; }
-.main-header .date { font-size: 13px; color: var(--text-light); margin-top: 2px; }
-
-/* ── Module Container ── */
+.sync-dot { width:6px;height:6px;border-radius:50%;display:inline-block;margin-right:4px; }
+.sync-online .sync-dot{background:#8cbf8c;}
+.sync-offline .sync-dot{background:#d88;animation:pulse2 1.5s ease infinite;}
+@keyframes pulse2{0%,100%{opacity:1}50%{opacity:.3}}
+.main { flex:1; padding:32px 36px 60px; overflow-y:auto; max-width:900px; }
+.main-header { margin-bottom:28px; }
+.main-header h1 { font-size:24px; font-weight:500; }
+.main-header .date { font-size:13px; color:var(--text-light); margin-top:2px; }
 .module { animation: fadeIn .3s ease; }
-@keyframes fadeIn { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:translateY(0); } }
+@keyframes fadeIn { from{opacity:0;transform:translateY(6px);} to{opacity:1;transform:translateY(0);} }
+.card { background:var(--card); border-radius:var(--radius); padding:24px; box-shadow:var(--shadow); border:1px solid var(--border); margin-bottom:20px; }
+.card-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:18px; }
+.card-title { font-size:14px; font-weight:600; display:flex; align-items:center; gap:8px; }
+.card-title .dot { width:7px;height:7px;border-radius:50%;background:var(--accent); }
 
-/* ── Card (shared) ── */
-.card {
-  background: var(--card); border-radius: var(--radius); padding: 24px;
-  box-shadow: var(--shadow); border: 1px solid var(--border); margin-bottom: 20px;
-}
-.card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; }
-.card-title { font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
-.card-title .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); }
+/* ── Home ── */
+.home-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+.home-section-title { font-size:12px; font-weight:600; color:var(--text-soft); margin-bottom:10px; letter-spacing:.5px; }
+.home-todo-item { display:flex; align-items:center; gap:8px; padding:8px 0; border-bottom:1px solid var(--border); font-size:13px; }
+.home-todo-item:last-child{border-bottom:none;}
+.home-todo-dot { width:6px;height:6px;border-radius:50%;background:var(--accent);flex-shrink:0; }
+.home-todo-text { flex:1; }
+.home-stat-card { text-align:center; padding:14px; border-radius:var(--radius-sm); border:1px solid var(--border); background:var(--card); }
+.home-stat-val { font-size:28px; font-weight:500; }
+.home-stat-label { font-size:11px; color:var(--text-light); margin-top:2px; }
+.home-checkin-btn { width:100%; padding:10px; border:1.5px dashed var(--border); border-radius:var(--radius-sm); background:var(--bg); color:var(--text-soft); font-size:13px; cursor:pointer; transition:all var(--transition); display:flex; align-items:center; justify-content:center; gap:6px; margin-bottom:8px; }
+.home-checkin-btn:hover { border-color:var(--accent); color:#4a8; background:var(--accent-bg); }
+.home-checkin-btn.checked { background:var(--accent-bg); border-color:var(--accent); color:#4a8; border-style:solid; }
 
-/* ── Ivy Lee Todo ── */
-.todo-tabs { display: flex; gap: 2px; background: var(--bg); border-radius: 20px; padding: 3px; }
-.todo-tab {
-  border: none; background: none; font-size: 12px; color: var(--text-soft);
-  padding: 5px 14px; border-radius: 18px; cursor: pointer; transition: all var(--transition);
-}
-.todo-tab.active { background: #fff; color: var(--text); box-shadow: 0 1px 3px rgba(0,0,0,.06); }
-.todo-migrate {
-  font-size: 11px; color: var(--text-soft); padding: 6px 10px;
-  background: var(--accent-bg); border-radius: var(--radius-xs); margin-bottom: 12px;
-  animation: fadeSlideIn .35s ease;
-}
-@keyframes fadeSlideIn { from { opacity:0; transform:translateY(-6px); } to { opacity:1; transform:translateY(0); } }
-@keyframes fadeSlideOut { from { opacity:1; transform:translateX(0); } to { opacity:0; transform:translateX(12px); } }
-.todo-list { display: flex; flex-direction: column; gap: 6px; min-height: 40px; }
-.todo-item {
-  display: flex; align-items: flex-start; gap: 8px; padding: 10px;
-  border-radius: var(--radius-xs); transition: all var(--transition); cursor: grab;
-  animation: fadeSlideIn .35s ease both;
-}
-.todo-item:hover { background: rgba(0,0,0,.02); }
-.todo-item.dragging { opacity: .5; background: var(--accent-bg); }
-.todo-item.done { opacity: .5; }
-.todo-item.done .todo-text { text-decoration: line-through; color: var(--text-light); }
-.todo-drag { width: 16px; height: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; color: var(--text-light); flex-shrink: 0; padding-top: 2px; opacity: 0; transition: opacity var(--transition); }
-.todo-item:hover .todo-drag { opacity: 1; }
-.todo-drag span { width: 10px; height: 1.5px; background: var(--text-light); border-radius: 1px; display: block; }
-.todo-cb {
-  appearance: none; -webkit-appearance: none; width: 18px; height: 18px;
-  border: 1.5px solid #d0d0d0; border-radius: 50%; cursor: pointer; flex-shrink: 0;
-  margin-top: 1px; transition: all var(--transition); position: relative;
-}
-.todo-cb:hover { border-color: var(--accent); }
-.todo-cb:checked { background: var(--accent); border-color: var(--accent); }
-.todo-cb:checked::after { content: ''; position: absolute; top: 3px; left: 5px; width: 5px; height: 8px; border: solid #fff; border-width: 0 2px 2px 0; transform: rotate(45deg); }
-.todo-body { flex: 1; min-width: 0; }
-.todo-text { font-size: 13px; word-break: break-word; }
-.todo-meta { display: flex; gap: 10px; margin-top: 2px; font-size: 11px; color: var(--text-light); }
-.todo-time { color: var(--accent); }
-.todo-sub-count { cursor: pointer; }
-.todo-actions { display: flex; gap: 2px; flex-shrink: 0; opacity: 0; transition: opacity var(--transition); }
-.todo-item:hover .todo-actions { opacity: 1; }
-.btn-del {
-  width: 22px; height: 22px; border: none; background: none; color: var(--text-light);
-  cursor: pointer; font-size: 14px; border-radius: 50%; display: flex; align-items: center;
-  justify-content: center; opacity: .5; transition: all var(--transition);
-}
-.btn-del:hover { opacity: 1; color: #d44; }
-.todo-subtasks { margin-left: 42px; border-left: 1.5px solid var(--border); padding-left: 12px; display: none; margin-bottom: 4px; }
-.todo-subtasks.show { display: block; animation: fadeSlideIn .3s ease; }
-.todo-sub-item { display: flex; align-items: center; gap: 8px; padding: 4px 0; font-size: 12px; }
-.todo-sub-item .todo-cb { width: 15px; height: 15px; }
-.todo-sub-item .todo-cb:checked::after { top: 2px; left: 4px; width: 4px; height: 7px; }
-.todo-sub-item.done .sub-text { text-decoration: line-through; color: var(--text-light); }
-.sub-text { flex: 1; color: var(--text-soft); word-break: break-word; }
+/* ── Todo ── */
+.todo-tabs { display:flex; gap:2px; background:var(--bg); border-radius:20px; padding:3px; }
+.todo-tab { border:none;background:none;font-size:12px;color:var(--text-soft); padding:5px 14px;border-radius:18px;cursor:pointer;transition:all var(--transition); }
+.todo-tab.active{background:#fff;color:var(--text);box-shadow:0 1px 3px rgba(0,0,0,.06);}
+.todo-migrate{font-size:11px;color:var(--text-soft);padding:6px 10px;background:var(--accent-bg);border-radius:var(--radius-xs);margin-bottom:12px;animation:fadeSlideIn .35s ease;}
+@keyframes fadeSlideIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeSlideOut{from{opacity:1;transform:translateX(0)}to{opacity:0;transform:translateX(12px)}}
+.todo-list{display:flex;flex-direction:column;gap:6px;min-height:40px;}
+.todo-item{display:flex;align-items:flex-start;gap:8px;padding:10px;border-radius:var(--radius-xs);transition:all var(--transition);cursor:grab;animation:fadeSlideIn .35s ease both;}
+.todo-item:hover{background:rgba(0,0,0,.02);}
+.todo-item.dragging{opacity:.5;background:var(--accent-bg);}
+.todo-item.done{opacity:.5;}
+.todo-item.done .todo-text{text-decoration:line-through;color:var(--text-light);}
+.todo-drag{width:16px;height:20px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;color:var(--text-light);flex-shrink:0;padding-top:2px;opacity:0;transition:opacity var(--transition);}
+.todo-item:hover .todo-drag{opacity:1;}
+.todo-drag span{width:10px;height:1.5px;background:var(--text-light);border-radius:1px;display:block;}
+.todo-cb{appearance:none;-webkit-appearance:none;width:18px;height:18px;border:1.5px solid #d0d0d0;border-radius:50%;cursor:pointer;flex-shrink:0;margin-top:1px;transition:all var(--transition);position:relative;}
+.todo-cb:hover{border-color:var(--accent);}
+.todo-cb:checked{background:var(--accent);border-color:var(--accent);}
+.todo-cb:checked::after{content:'';position:absolute;top:3px;left:5px;width:5px;height:8px;border:solid #fff;border-width:0 2px 2px 0;transform:rotate(45deg);}
+.todo-body{flex:1;min-width:0;}
+.todo-text{font-size:13px;word-break:break-word;}
+.todo-meta{display:flex;gap:10px;margin-top:2px;font-size:11px;color:var(--text-light);}
+.todo-time{color:var(--accent);}
+.todo-sub-count{cursor:pointer;}
+.todo-actions{display:flex;gap:2px;flex-shrink:0;opacity:0;transition:opacity var(--transition);}
+.todo-item:hover .todo-actions{opacity:1;}
+.btn-del{width:22px;height:22px;border:none;background:none;color:var(--text-light);cursor:pointer;font-size:14px;border-radius:50%;display:flex;align-items:center;justify-content:center;opacity:.5;transition:all var(--transition);}
+.btn-del:hover{opacity:1;color:#d44;}
+.todo-subtasks{margin-left:42px;border-left:1.5px solid var(--border);padding-left:12px;display:none;margin-bottom:4px;}
+.todo-subtasks.show{display:block;animation:fadeSlideIn .3s ease;}
+.todo-sub-item{display:flex;align-items:center;gap:8px;padding:4px 0;font-size:12px;}
+.todo-sub-item .todo-cb{width:15px;height:15px;}
+.todo-sub-item .todo-cb:checked::after{top:2px;left:4px;width:4px;height:7px;}
+.todo-sub-item.done .sub-text{text-decoration:line-through;color:var(--text-light);}
+.sub-text{flex:1;color:var(--text-soft);word-break:break-word;}
+.todo-footer{display:flex;align-items:center;justify-content:space-between;margin-top:12px;padding-top:10px;border-top:1px solid var(--border);}
+.btn-sm{border:none;background:none;color:var(--text-soft);cursor:pointer;font-size:12px;padding:4px 10px;border-radius:var(--radius-xs);transition:all var(--transition);}
+.btn-sm:hover{background:var(--bg);color:var(--text);}
+.todo-sub-input{margin-top:8px;display:none;}
+.todo-sub-input.show{display:flex;gap:6px;animation:fadeSlideIn .25s ease;}
+.todo-sub-input input{flex:1;border:none;border-bottom:1px solid var(--border);font-size:12px;padding:3px 0;background:none;outline:none;color:var(--text);}
+.todo-sub-input input:focus{border-color:var(--accent);}
 
-.todo-footer { display: flex; align-items: center; justify-content: space-between; margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--border); }
-.btn-sm { border: none; background: none; color: var(--text-soft); cursor: pointer; font-size: 12px; padding: 4px 10px; border-radius: var(--radius-xs); transition: all var(--transition); }
-.btn-sm:hover { background: var(--bg); color: var(--text); }
-.todo-sub-input { margin-top: 8px; display: none; }
-.todo-sub-input.show { display: flex; gap: 6px; animation: fadeSlideIn .25s ease; }
-.todo-sub-input input { flex: 1; border: none; border-bottom: 1px solid var(--border); font-size: 12px; padding: 3px 0; background: none; outline: none; color: var(--text); }
-.todo-sub-input input:focus { border-color: var(--accent); }
+/* ── General inputs ── */
+.input-row{display:flex;gap:8px;margin-bottom:14px;}
+.input-row input,.input-row select{flex:1;border:1px solid var(--border);border-radius:var(--radius-xs);padding:9px 12px;font-size:13px;color:var(--text);background:var(--bg);outline:none;transition:border var(--transition);font-family:inherit;}
+.input-row input:focus,.input-row select:focus{border-color:var(--accent);}
+.input-row input::placeholder{color:var(--text-light);}
+.btn-add{width:34px;height:34px;border:none;border-radius:var(--radius-xs);background:var(--accent);color:#fff;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:opacity var(--transition),transform var(--transition);flex-shrink:0;}
+.btn-add:hover{opacity:.85;transform:scale(1.04);}
+.btn-add:active{transform:scale(.96);}
 
-/* ── Input Row ── */
-.input-row { display: flex; gap: 8px; margin-bottom: 14px; }
-.input-row input, .input-row select {
-  flex: 1; border: 1px solid var(--border); border-radius: var(--radius-xs);
-  padding: 9px 12px; font-size: 13px; color: var(--text); background: var(--bg); outline: none;
-  transition: border var(--transition); font-family: inherit;
-}
-.input-row input:focus, .input-row select:focus { border-color: var(--accent); }
-.input-row input::placeholder { color: var(--text-light); }
-.btn-add {
-  width: 34px; height: 34px; border: none; border-radius: var(--radius-xs);
-  background: var(--accent); color: #fff; font-size: 18px; cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-  transition: opacity var(--transition), transform var(--transition); flex-shrink: 0;
-}
-.btn-add:hover { opacity: .85; transform: scale(1.04); }
-.btn-add:active { transform: scale(.96); }
-
-/* ── Life List ── */
-.life-category { margin-bottom: 12px; }
-.life-cat-label { font-size: 11px; color: var(--text-light); letter-spacing: .8px; margin-bottom: 4px; }
-.list-item {
-  display: flex; align-items: center; gap: 10px; padding: 8px 8px;
-  border-radius: var(--radius-xs); transition: background var(--transition);
-  animation: fadeSlideIn .35s ease both;
-}
-.list-item:hover { background: rgba(0,0,0,.015); }
-.list-item.done .item-text { color: var(--text-light); text-decoration: line-through; }
-.item-text { flex: 1; font-size: 13px; }
+/* ── Life ── */
+.life-category{margin-bottom:12px;}
+.life-cat-label{font-size:11px;color:var(--text-light);letter-spacing:.8px;margin-bottom:4px;}
+.list-item{display:flex;align-items:center;gap:10px;padding:8px 8px;border-radius:var(--radius-xs);transition:background var(--transition);animation:fadeSlideIn .35s ease both;}
+.list-item:hover{background:rgba(0,0,0,.015);}
+.list-item.done .item-text{color:var(--text-light);text-decoration:line-through;}
+.item-text{flex:1;font-size:13px;}
 
 /* ── Travel ── */
-.travel-form { display: none; margin-bottom: 14px; }
-.travel-form.show { display: block; animation: fadeSlideIn .3s ease; }
-.travel-form input, .travel-form textarea {
-  width: 100%; border: 1px solid var(--border); border-radius: var(--radius-xs);
-  padding: 8px 12px; font-size: 13px; margin-bottom: 8px;
-  background: var(--bg); outline: none; color: var(--text); font-family: inherit; resize: none;
-}
-.travel-form input:focus, .travel-form textarea:focus { border-color: var(--accent); }
-.travel-form .form-row { display: flex; gap: 8px; }
-.travel-form .form-row input { flex: 1; }
-.travel-item {
-  padding: 14px; border-radius: var(--radius-sm); margin-bottom: 10px;
-  border: 1px solid var(--border); transition: all var(--transition);
-  animation: fadeSlideIn .35s ease both; cursor: pointer;
-}
-.travel-item:hover { border-color: var(--accent); box-shadow: var(--shadow-hover); }
-.travel-date { font-size: 11px; color: var(--text-light); }
-.travel-location { font-size: 15px; font-weight: 600; margin: 2px 0; }
-.travel-note { font-size: 12px; color: var(--text-soft); line-height: 1.5; }
-.travel-img { width: 100%; height: 120px; border-radius: var(--radius-sm); background: var(--bg); margin-top: 8px; overflow: hidden; }
-.travel-img img { width: 100%; height: 100%; object-fit: cover; }
+.travel-form{display:none;margin-bottom:14px;}
+.travel-form.show{display:block;animation:fadeSlideIn .3s ease;}
+.travel-form input,.travel-form textarea{width:100%;border:1px solid var(--border);border-radius:var(--radius-xs);padding:8px 12px;font-size:13px;margin-bottom:8px;background:var(--bg);outline:none;color:var(--text);font-family:inherit;resize:none;}
+.travel-form input:focus,.travel-form textarea:focus{border-color:var(--accent);}
+.travel-form .form-row{display:flex;gap:8px;}
+.travel-form .form-row input{flex:1;}
+.travel-item{padding:14px;border-radius:var(--radius-sm);margin-bottom:10px;border:1px solid var(--border);transition:all var(--transition);animation:fadeSlideIn .35s ease both;cursor:pointer;}
+.travel-item:hover{border-color:var(--accent);box-shadow:0 4px 16px rgba(0,0,0,.05);}
+.travel-date{font-size:11px;color:var(--text-light);}
+.travel-location{font-size:15px;font-weight:600;margin:2px 0;}
+.travel-note{font-size:12px;color:var(--text-soft);line-height:1.5;}
+.travel-img{width:100%;height:120px;border-radius:var(--radius-sm);background:var(--bg);margin-top:8px;overflow:hidden;}
+.travel-img img{width:100%;height:100%;object-fit:cover;}
 
 /* ── Mood ── */
-.mood-grid { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; }
-.mood-btn {
-  width: 44px; height: 44px; border: 1.5px solid transparent; border-radius: 50%;
-  font-size: 22px; cursor: pointer; background: var(--bg); transition: all var(--transition);
-  display: flex; align-items: center; justify-content: center;
-}
-.mood-btn:hover { transform: scale(1.1); }
-.mood-btn.selected { border-color: var(--accent); transform: scale(1.12); background: #fff; }
-.mood-note { width: 100%; border: 1px solid var(--border); border-radius: var(--radius-xs); padding: 9px 12px; font-size: 13px; background: var(--bg); outline: none; color: var(--text); margin-bottom: 10px; font-family: inherit; }
-.mood-note:focus { border-color: var(--accent); }
-.mood-history { max-height: 220px; overflow-y: auto; }
-.mood-entry { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 13px; animation: fadeSlideIn .35s ease both; }
-.mood-entry:last-child { border-bottom: none; }
-.m-emoji { font-size: 20px; }
-.m-text { flex: 1; color: var(--text-soft); }
-.m-date { font-size: 11px; color: var(--text-light); }
+.mood-grid{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px;}
+.mood-btn{width:44px;height:44px;border:1.5px solid transparent;border-radius:50%;font-size:22px;cursor:pointer;background:var(--bg);transition:all var(--transition);display:flex;align-items:center;justify-content:center;}
+.mood-btn:hover{transform:scale(1.1);}
+.mood-btn.selected{border-color:var(--accent);transform:scale(1.12);background:#fff;}
+.mood-note{width:100%;border:1px solid var(--border);border-radius:var(--radius-xs);padding:9px 12px;font-size:13px;background:var(--bg);outline:none;color:var(--text);margin-bottom:10px;font-family:inherit;}
+.mood-note:focus{border-color:var(--accent);}
+.mood-history{max-height:220px;overflow-y:auto;}
+.mood-entry{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px;animation:fadeSlideIn .35s ease both;}
+.mood-entry:last-child{border-bottom:none;}
+.m-emoji{font-size:20px;}
+.m-text{flex:1;color:var(--text-soft);}
+.m-date{font-size:11px;color:var(--text-light);}
 
-/* ── Body Management ── */
-.body-tabs { display: flex; gap: 2px; background: var(--bg); border-radius: 20px; padding: 3px; }
-.body-tab { border: none; background: none; font-size: 12px; color: var(--text-soft); padding: 5px 12px; border-radius: 18px; cursor: pointer; transition: all var(--transition); }
-.body-tab.active { background: #fff; color: var(--text); box-shadow: 0 1px 3px rgba(0,0,0,.05); }
-.body-calendar { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin: 14px 0 12px; }
-.ex-day-header { font-size: 11px; color: var(--text-light); text-align: center; padding: 4px 0; }
-.body-day { aspect-ratio: 1; border-radius: 4px; font-size: 10px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all var(--transition); color: var(--text-soft); background: var(--bg); }
-.body-day:hover { transform: scale(1.1); }
-.body-day.today { font-weight: 700; color: var(--accent); }
-.body-day.ex-done { background: #e4f0e4; color: #4a8; }
-.body-day.wt-done { background: #f0ece8; color: #a86; }
-.body-day.both-done { background: linear-gradient(135deg, #e4f0e4 50%, #f0ece8 50%); color: #4a8; font-weight: 600; }
-.body-panel { animation: fadeSlideIn .3s ease; }
-.body-checkin-btn { width: 100%; padding: 10px; border: 1.5px dashed var(--border); border-radius: var(--radius-sm); background: var(--bg); color: var(--text-soft); font-size: 13px; cursor: pointer; transition: all var(--transition); display: flex; align-items: center; justify-content: center; gap: 6px; }
-.body-checkin-btn:hover { border-color: var(--accent); color: #4a8; background: var(--accent-bg); }
-.body-checkin-btn.checked { background: var(--accent-bg); border-color: var(--accent); color: #4a8; border-style: solid; }
-.body-stats-row { display: flex; justify-content: space-around; font-size: 11px; color: var(--text-light); margin-top: 10px; }
-.body-stats-row b { color: var(--text); font-size: 16px; font-weight: 500; display: block; }
-.body-weight-now { display: flex; align-items: flex-end; gap: 6px; margin-bottom: 10px; }
-.bw-val { font-size: 40px; font-weight: 300; line-height: 1; }
-.bw-unit { font-size: 13px; color: var(--text-light); margin-bottom: 2px; }
-.weight-delta { font-size: 13px; margin-bottom: 6px; padding: 2px 8px; border-radius: 20px; }
-.weight-delta.up { color: #c88; background: #f8ece8; }
-.weight-delta.down { color: #8a8; background: var(--accent-bg); }
-.body-weight-input { display: flex; gap: 6px; margin-bottom: 12px; }
-.body-weight-input input { flex: 1; border: 1px solid var(--border); border-radius: var(--radius-xs); padding: 8px 12px; font-size: 13px; background: var(--bg); outline: none; color: var(--text); }
-.body-weight-input input:focus { border-color: var(--accent); }
-.body-chart { width: 100%; height: 100px; border-radius: var(--radius-sm); overflow: hidden; margin-bottom: 10px; }
-.body-chart svg { width: 100%; height: 100%; }
-.body-recent { max-height: 100px; overflow-y: auto; }
-.body-recent-item { display: flex; justify-content: space-between; align-items: center; padding: 5px 0; border-bottom: 1px solid var(--border); font-size: 12px; animation: fadeSlideIn .35s ease both; }
-.body-recent-item:last-child { border-bottom: none; }
-.br-date { color: var(--text-light); }
-.br-val { font-weight: 500; }
-.br-delta { font-size: 10px; }
-.br-delta.pos { color: #c88; }
-.br-delta.neg { color: #8a8; }
+/* ── Body ── */
+.body-tabs{display:flex;gap:2px;background:var(--bg);border-radius:20px;padding:3px;}
+.body-tab{border:none;background:none;font-size:12px;color:var(--text-soft);padding:5px 12px;border-radius:18px;cursor:pointer;transition:all var(--transition);}
+.body-tab.active{background:#fff;color:var(--text);box-shadow:0 1px 3px rgba(0,0,0,.05);}
+.body-calendar{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin:14px 0 12px;}
+.ex-day-header{font-size:11px;color:var(--text-light);text-align:center;padding:4px 0;}
+.body-day{aspect-ratio:1;border-radius:4px;font-size:10px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all var(--transition);color:var(--text-soft);background:var(--bg);}
+.body-day:hover{transform:scale(1.1);}
+.body-day.today{font-weight:700;color:var(--accent);}
+.body-day.ex-done{background:#e4f0e4;color:#4a8;}
+.body-day.wt-done{background:#f0ece8;color:#a86;}
+.body-day.both-done{background:linear-gradient(135deg,#e4f0e4 50%,#f0ece8 50%);color:#4a8;font-weight:600;}
+.body-panel{animation:fadeSlideIn .3s ease;}
+.body-checkin-btn{width:100%;padding:10px;border:1.5px dashed var(--border);border-radius:var(--radius-sm);background:var(--bg);color:var(--text-soft);font-size:13px;cursor:pointer;transition:all var(--transition);display:flex;align-items:center;justify-content:center;gap:6px;}
+.body-checkin-btn:hover{border-color:var(--accent);color:#4a8;background:var(--accent-bg);}
+.body-checkin-btn.checked{background:var(--accent-bg);border-color:var(--accent);color:#4a8;border-style:solid;}
+.body-stats-row{display:flex;justify-content:space-around;font-size:11px;color:var(--text-light);margin-top:10px;}
+.body-stats-row b{color:var(--text);font-size:16px;font-weight:500;display:block;}
+.body-weight-now{display:flex;align-items:flex-end;gap:6px;margin-bottom:10px;}
+.bw-val{font-size:40px;font-weight:300;line-height:1;}
+.bw-unit{font-size:13px;color:var(--text-light);margin-bottom:2px;}
+.weight-delta{font-size:13px;margin-bottom:6px;padding:2px 8px;border-radius:20px;}
+.weight-delta.up{color:#c88;background:#f8ece8;}
+.weight-delta.down{color:#8a8;background:var(--accent-bg);}
+.body-weight-input{display:flex;gap:6px;margin-bottom:12px;}
+.body-weight-input input{flex:1;border:1px solid var(--border);border-radius:var(--radius-xs);padding:8px 12px;font-size:13px;background:var(--bg);outline:none;color:var(--text);}
+.body-weight-input input:focus{border-color:var(--accent);}
+.body-chart{width:100%;height:100px;border-radius:var(--radius-sm);overflow:hidden;margin-bottom:10px;}
+.body-chart svg{width:100%;height:100%;}
+.body-recent{max-height:100px;overflow-y:auto;}
+.body-recent-item{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--border);font-size:12px;animation:fadeSlideIn .35s ease both;}
+.body-recent-item:last-child{border-bottom:none;}
+.br-date{color:var(--text-light);}
+.br-val{font-weight:500;}
+.br-delta{font-size:10px;}
+.br-delta.pos{color:#c88;}
+.br-delta.neg{color:#8a8;}
 
-/* ── Empty ── */
-.empty-state { text-align: center; padding: 24px; color: var(--text-light); font-size: 13px; }
-
-/* ── Toast ── */
-.toast { position: fixed; bottom: 32px; left: 50%; transform: translateX(-50%); background: var(--text); color: #fff; padding: 10px 24px; border-radius: 24px; font-size: 13px; opacity: 0; transition: opacity .3s ease, transform .3s ease; pointer-events: none; z-index: 100; }
-.toast.show { opacity: 1; transform: translateX(-50%) translateY(-4px); }
-
-/* ── Modal ── */
-.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.4); z-index: 200; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity var(--transition); }
-.modal-overlay.show { opacity: 1; pointer-events: auto; }
-.modal-content { background: #fff; border-radius: var(--radius); padding: 20px; max-width: 500px; width: 90%; box-shadow: 0 20px 60px rgba(0,0,0,.15); }
-.modal-content img { width: 100%; border-radius: var(--radius-sm); }
-.modal-content h3 { margin-bottom: 4px; }
-.modal-content p { color: var(--text-soft); font-size: 13px; margin: 4px 0; }
-
-/* ── Responsive ── */
-@media (max-width: 720px) {
-  .sidebar { width: 60px; }
-  .sidebar-logo h2, .sidebar-logo .sub, .nav-item { justify-content: center; padding: 10px 0; }
-  .nav-item .ni-icon + * { display: none; }
-  .main { padding: 20px 14px 40px; }
-}
+/* ── Shared ── */
+.empty-state{text-align:center;padding:24px;color:var(--text-light);font-size:13px;}
+.toast{position:fixed;bottom:32px;left:50%;transform:translateX(-50%);background:var(--text);color:#fff;padding:10px 24px;border-radius:24px;font-size:13px;opacity:0;transition:opacity .3s ease,transform .3s ease;pointer-events:none;z-index:100;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(-4px);}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:200;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity var(--transition);}
+.modal-overlay.show{opacity:1;pointer-events:auto;}
+.modal-content{background:#fff;border-radius:var(--radius);padding:20px;max-width:500px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,.15);}
+.modal-content img{width:100%;border-radius:var(--radius-sm);}
+.modal-content h3{margin-bottom:4px;}
+.modal-content p{color:var(--text-soft);font-size:13px;margin:4px 0;}
+@media(max-width:720px){.sidebar{width:60px;}.sidebar-logo h2,.sidebar-logo .sub,.nav-item{justify-content:center;padding:10px 0;}.main{padding:20px 14px 40px;}}
 </style>
 </head>
 <body>
 
 <div class="app">
-  <!-- Sidebar -->
-  <nav class="sidebar">
-    <div class="sidebar-logo">
-      <h2>Rowen's Space</h2>
-      <div class="sub">宁静有序，日日如歌</div>
-    </div>
-    <div class="sidebar-nav" id="sidebar-nav">
-      <button class="nav-item active" data-module="todo">📋 Day Todo</button>
-      <button class="nav-item" data-module="life">📦 生活清单</button>
-      <button class="nav-item" data-module="travel">✈️ 旅游日志</button>
-      <button class="nav-item" data-module="mood">💭 心情记录</button>
-      <button class="nav-item" data-module="body">🏃 身体管理</button>
-    </div>
-    <div class="sidebar-foot" id="sync-status-foot">
-      <span class="sync-dot"></span> 未连接
-    </div>
-  </nav>
-
-  <!-- Main -->
-  <div class="main">
-    <div class="main-header">
-      <h1 id="module-title">Day Todo</h1>
-      <div class="date" id="module-date"></div>
-    </div>
-    <div class="module" id="module-content"></div>
-  </div>
+<nav class="sidebar">
+<div class="sidebar-logo"><h2>Rowen's Space</h2><div class="sub">宁静有序，日日如歌</div></div>
+<div class="sidebar-nav">
+  <button class="nav-item active" data-module="home">🏠 首页</button>
+  <button class="nav-item" data-module="todo">📋 Day Todo</button>
+  <button class="nav-item" data-module="life">📦 生活清单</button>
+  <button class="nav-item" data-module="travel">✈️ 旅游日志</button>
+  <button class="nav-item" data-module="mood">💭 心情记录</button>
+  <button class="nav-item" data-module="body">🏃 身体管理</button>
+</div>
+<div class="sidebar-foot sync-offline" id="sync-status-foot"><span class="sync-dot"></span> 未连接</div>
+</nav>
+<div class="main">
+<div class="main-header"><h1 id="module-title">首页</h1><div class="date" id="module-date"></div></div>
+<div class="module" id="module-content"></div>
+</div>
 </div>
 
-<!-- Toast -->
 <div class="toast" id="toast"></div>
 <div class="modal-overlay" id="modal-overlay" onclick="closeModal()">
-  <div class="modal-content" onclick="event.stopPropagation()">
-    <img id="modal-img" src="" alt="">
-    <h3 id="modal-location"></h3>
-    <p id="modal-note"></p>
-    <p id="modal-date" style="font-size:11px;color:var(--text-light)"></p>
-    <button class="btn-add" style="width:auto;padding:0 16px;margin-top:8px;" onclick="closeModal()">关闭</button>
-  </div>
-</div>
+<div class="modal-content" onclick="event.stopPropagation()">
+<img id="modal-img" src="" alt=""><h3 id="modal-location"></h3>
+<p id="modal-note"></p><p id="modal-date" style="font-size:11px;color:var(--text-light)"></p>
+<button class="btn-add" style="width:auto;padding:0 16px;margin-top:8px;" onclick="closeModal()">关闭</button>
+</div></div>
 
 <script>
-// ── Supabase ──
-const SUPABASE_URL = 'https://ubqmtpvbkrdgmijfppir.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_72YhJ6ANGV_sxAVLkdEuiw_zs58Kd89';
-const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const SUPABASE_URL='https://ubqmtpvbkrdgmijfppir.supabase.co';
+const SUPABASE_KEY='sb_publishable_72YhJ6ANGV_sxAVLkdEuiw_zs58Kd89';
+const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 
-// ── Utils ──
-const $ = s => document.querySelector(s);
-function toast(m) { const t = $('#toast'); t.textContent=m; t.classList.add('show'); clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove('show'),1800); }
-function fmtDate(d) { return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
-function escHtml(s) { const d=document.createElement('div'); d.textContent=s; return d.innerHTML; }
+const $=s=>document.querySelector(s);
+function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),1800);}
+function fmtDate(d){return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
+function escHtml(s){const d=document.createElement('div');d.textContent=s;return d.innerHTML;}
 
-// ── Cloud ──
-let cloudReady = false;
-function setSyncStatus(on, msg) {
-  cloudReady = on;
-  const el = $('#sync-status-foot');
-  el.innerHTML = on ? `<span class="sync-dot"></span> ${msg||'已同步'}` : `<span class="sync-dot"></span> ${msg||'离线缓存中'}`;
-  el.className = 'sidebar-foot ' + (on ? 'sync-online' : 'sync-offline');
-}
-async function loadCloud(m) {
-  if (!cloudReady) return loadLocal(m);
-  try { const { data } = await db.from('dashboard_data').select('data').eq('module', m).maybeSingle(); if (data) { saveLocal(m, data.data); return Array.isArray(data.data)?data.data:[]; } return []; }
-  catch { setSyncStatus(false); return loadLocal(m); }
-}
-async function saveCloud(m, arr) {
-  saveLocal(m, arr);
-  if (!cloudReady) return;
-  try { await db.from('dashboard_data').upsert({ module:m, data:arr, updated_at:new Date() }, { onConflict:'module' }); setSyncStatus(true); }
-  catch { setSyncStatus(false); }
-}
-function saveLocal(k, v) { try { localStorage.setItem('db_'+k, JSON.stringify(v)); } catch {} }
-function loadLocal(k) { try { return JSON.parse(localStorage.getItem('db_'+k)||'[]'); } catch { return []; } }
+let cloudReady=false;
+function setSyncStatus(on,msg){cloudReady=on;const el=$('#sync-status-foot');el.innerHTML=on?`<span class="sync-dot"></span> ${msg||'已同步'}`:`<span class="sync-dot"></span> ${msg||'离线缓存中'}`;el.className='sidebar-foot '+(on?'sync-online':'sync-offline');}
+async function loadCloud(m){if(!cloudReady)return loadLocal(m);try{const{data}=await db.from('dashboard_data').select('data').eq('module',m).maybeSingle();if(data){saveLocal(m,data.data);return Array.isArray(data.data)?data.data:[];}return[];}catch{setSyncStatus(false);return loadLocal(m);}}
+async function saveCloud(m,arr){saveLocal(m,arr);if(!cloudReady)return;try{await db.from('dashboard_data').upsert({module:m,data:arr,updated_at:new Date()},{onConflict:'module'});setSyncStatus(true);}catch{setSyncStatus(false);}}
+function saveLocal(k,v){try{localStorage.setItem('db_'+k,JSON.stringify(v));}catch{}}
+function loadLocal(k){try{return JSON.parse(localStorage.getItem('db_'+k)||'[]');}catch{return[];}}
 
-// ── Realtime ──
-function setupRealtime() {
-  db.channel('ds').on('postgres_changes', { event:'*', schema:'public', table:'dashboard_data' }, (p) => {
-    if (!p.new) return;
-    const m = p.new.module, d = p.new.data;
-    if (!Array.isArray(d)) return;
-    const map = { 'todos':'todos','life':'lifeItems','travel':'travels','mood':'moods','exercise':'exercises','weight':'weights' };
-    if (map[m]) { window[map[m]] = d; renderCurrent(); }
-    toast('📡 数据已同步');
-  }).subscribe();
-}
+function setupRealtime(){db.channel('ds').on('postgres_changes',{event:'*',schema:'public',table:'dashboard_data'},(p)=>{if(!p.new)return;const m=p.new.module,d=p.new.data;if(!Array.isArray(d))return;const map={todos:'todos',life:'lifeItems',travel:'travels',mood:'moods',exercise:'exercises',weight:'weights'};if(map[m]){window[map[m]]=d;renderCurrent();}toast('📡 数据已同步');}).subscribe();}
 
-// ── Bootstrap ──
-async function bootstrap() {
-  try {
-    const { data, error } = await db.from('dashboard_data').select('module,data');
-    if (error) throw error;
-    setSyncStatus(true); setupRealtime();
-    const seed = {};
-    if (data) data.forEach(r => { if (Array.isArray(r.data)) seed[r.module] = r.data; });
-    const modules = ['todos','life','travel','mood','exercise','weight'];
-    let hasLocal = false;
-    for (const m of modules) {
-      if (!seed[m]) { const local = loadLocal(m); seed[m]=local; if (local.length) hasLocal=true; }
-    }
-    if (hasLocal) {
-      for (const m of modules) {
-        if (seed[m].length) await db.from('dashboard_data').upsert({ module:m, data:seed[m], updated_at:new Date() }, { onConflict:'module' });
-      }
-    }
-    return seed;
-  } catch(e) {
-    setSyncStatus(false, '❌ '+(e.message||e.code||''));
-    return null;
-  }
-}
+async function bootstrap(){try{const{data,error}=await db.from('dashboard_data').select('module,data');if(error)throw error;setSyncStatus(true);setupRealtime();const seed={};if(data)data.forEach(r=>{if(Array.isArray(r.data))seed[r.module]=r.data;});const mods=['todos','life','travel','mood','exercise','weight'];let hl=false;for(const m of mods){if(!seed[m]){const l=loadLocal(m);seed[m]=l;if(l.length)hl=true;}}if(hl){for(const m of mods){if(seed[m].length)await db.from('dashboard_data').upsert({module:m,data:seed[m],updated_at:new Date()},{onConflict:'module'});}}return seed;}catch(e){setSyncStatus(false,'❌ '+(e.message||e.code||''));return null;}}
 
-// ── Data ──
-let todos=[], lifeItems=[], travels=[], moods=[], exercises=[], weights=[], selectedMood='';
-let activeDay='today', activeSubTarget=null, bodyTrack='exercise', currentModule='todo';
+let todos=[],lifeItems=[],travels=[],moods=[],exercises=[],weights=[],selectedMood='';
+let activeDay='today',activeSubTarget=null,bodyTrack='exercise',currentModule='home';
 
-// ── Module switching ──
-const TITLES = { todo:'Day Todo', life:'生活清单', travel:'旅游日志', mood:'心情记录', body:'身体管理' };
-document.querySelectorAll('.nav-item').forEach(btn => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));
-    btn.classList.add('active');
-    currentModule = btn.dataset.module;
-    $('#module-title').textContent = TITLES[currentModule];
-    renderCurrent();
-  });
-});
+const TITLES={home:'首页',todo:'Day Todo',life:'生活清单',travel:'旅游日志',mood:'心情记录',body:'身体管理'};
+document.querySelectorAll('.nav-item').forEach(btn=>{btn.addEventListener('click',()=>{document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));btn.classList.add('active');currentModule=btn.dataset.module;$('#module-title').textContent=TITLES[currentModule];renderCurrent();});});
 
-function renderCurrent() {
-  switch(currentModule) {
-    case 'todo': renderTodo(); break;
-    case 'life': renderLife(); break;
-    case 'travel': renderTravel(); break;
-    case 'mood': renderMood(); break;
-    case 'body': renderBody(); break;
-  }
-}
+function renderCurrent(){switch(currentModule){case'home':renderHome();break;case'todo':renderTodo();break;case'life':renderLife();break;case'travel':renderTravel();break;case'mood':renderMood();break;case'body':renderBody();break;}}
 
-// ── Header date ──
-function updateHeader() {
-  const n = new Date();
-  const w = ['日','一','二','三','四','五','六'];
-  $('#module-date').textContent = `${n.getFullYear()}年${n.getMonth()+1}月${n.getDate()}日 · 星期${w[n.getDay()]}`;
-}
+function updateHeader(){const n=new Date(),w=['日','一','二','三','四','五','六'];$('#module-date').textContent=`${n.getFullYear()}年${n.getMonth()+1}月${n.getDate()}日 · 星期${w[n.getDay()]}`;}
 
-// ── 1. Day Todo ──
-function currentDay() { return new Date().getHours()>=18?'tomorrow':'today'; }
-function yesterdayStr() { const d=new Date(); d.setDate(d.getDate()-1); return fmtDate(d); }
+// ── Home ──
+function renderHome(){const n=new Date(),ts=fmtDate(n);const td=todos.filter(t=>t.day==='today').sort((a,b)=>a.order-b.order);const undone=td.filter(t=>!t.done);const te=exercises.find(e=>e.date===ts&&e.type!=='rest');const ms=`${n.getFullYear()}-${String(n.getMonth()+1).padStart(2,'0')}`;const me=exercises.filter(e=>e.date.startsWith(ms)&&e.type!=='rest');let sk=0,ck=new Date(n.getFullYear(),n.getMonth(),n.getDate());while(true){const ds=fmtDate(ck);if(exercises.find(e=>e.date===ds&&e.type!=='rest')){sk++;ck.setDate(ck.getDate()-1);}else break;}
+let h=`<div class="home-grid">
+<div><div class="home-section-title">今日待办</div>${undone.slice(0,4).map(t=>`<div class="home-todo-item"><span class="home-todo-dot"></span><span class="home-todo-text">${escHtml(t.text)}</span></div>`).join('')||'<div class="empty-state" style="padding:12px;font-size:12px">今天没有待办 ✨</div>'}${undone.length>4?`<div style="font-size:11px;color:var(--text-light);text-align:center;padding:4px">还有 ${undone.length-4} 项...</div>`:''}</div>
+<div><div class="home-section-title">运动打卡</div><div class="home-checkin-btn${te?' checked':''}" onclick="quickExerciseCheckin()">${te?'<span>✓</span> 今日已打卡':'<span>✓</span> 点击打卡'}</div>
+<div class="home-grid" style="grid-template-columns:1fr 1fr;gap:8px;"><div class="home-stat-card"><div class="home-stat-val">${me.length}</div><div class="home-stat-label">本月</div></div><div class="home-stat-card"><div class="home-stat-val">${sk}</div><div class="home-stat-label">连续天</div></div></div></div></div>
+<div style="margin-top:8px;font-size:11px;color:var(--text-light);text-align:center">点击侧边栏切换模块查看更多 →</div>`;
+$('#module-content').innerHTML=`<div class="card"><div class="card-header"><div class="card-title"><span class="dot"></span>今日概览</div></div>${h}</div>`;}
+async function quickExerciseCheckin(){const d=fmtDate(new Date()),i=exercises.findIndex(e=>e.date===d&&e.type!=='rest');if(i>=0){exercises.splice(i,1);await saveCloud('exercise',exercises);renderHome();toast('已取消');}else{exercises.push({date:d,type:'done',id:Date.now()});await saveCloud('exercise',exercises);renderHome();toast('打卡成功！');}}
 
-function renderTodo() {
-  const todayStr = fmtDate(new Date()), ydayStr = yesterdayStr();
-  let migrated = 0;
-  todos.forEach(t => { if (!t.done && t.date===ydayStr && t.day==='today') { t.date=todayStr; t.migrated=true; migrated++; } });
-  if (migrated>0) { saveCloud('todos', todos); }
-  todos.forEach(t => { if (!t.done && t.date===todayStr && !t.migrated) t.day='today'; });
+// ── Day Todo ──
+function currentDay(){return new Date().getHours()>=18?'tomorrow':'today';}
+function yesterdayStr(){const d=new Date();d.setDate(d.getDate()-1);return fmtDate(d);}
+function renderTodo(){const ts=fmtDate(new Date()),ys=yesterdayStr();let mg=0;todos.forEach(t=>{if(!t.done&&t.date===ys&&t.day==='today'){t.date=ts;t.migrated=true;mg++;}});if(mg>0)saveCloud('todos',todos);todos.forEach(t=>{if(!t.done&&t.date===ts&&!t.migrated)t.day='today';});
+const dt=todos.filter(t=>t.day===activeDay).sort((a,b)=>a.order-b.order);
+let h='';if(mg>0)h+=`<div class="todo-migrate">📥 昨天 <b>${mg}</b> 项未完成，已移入今天</div>`;
+h+=`<div class="input-row"><input type="time" id="todo-time" value="" style="width:74px;flex:none;font-size:12px;"><input type="text" id="todo-input" placeholder="今天要做什么？" maxlength="60"><button class="btn-add" onclick="addTodo()">+</button></div>`;
+if(dt.length){h+=`<div class="todo-list">${dt.map(t=>{const ds=(t.subtasks||[]).filter(s=>s.done).length,ts2=(t.subtasks||[]).length;return`<div class="todo-item ${t.done?'done':''}" draggable="true" data-id="${t.id}" ondragstart="onDragStart(event)" ondragover="onDragOver(event)" ondragend="onDragEnd(event)" ondrop="onDrop(event)"><div class="todo-drag"><span></span><span></span></div><input type="checkbox" class="todo-cb" ${t.done?'checked':''} onchange="toggleTodo('${t.id}')"><div class="todo-body"><div class="todo-text">${escHtml(t.text)}</div><div class="todo-meta">${t.time?`<span class="todo-time">⏰ ${t.time}</span>`:''}${ts2?`<span class="todo-sub-count" onclick="toggleSubView('${t.id}')">📎 ${ds}/${ts2}</span>`:''}${t.migrated?'<span style="color:var(--accent)">📥 昨日</span>':''}</div></div><div class="todo-actions"><button class="btn-del" onclick="event.stopPropagation();startAddSub('${t.id}')">+</button><button class="btn-del" onclick="event.stopPropagation();removeTodo('${t.id}')">×</button></div></div><div class="todo-subtasks ${activeSubTarget===t.id?'show':''}" id="subs-${t.id}">${(t.subtasks||[]).map(s=>`<div class="todo-sub-item ${s.done?'done':''}"><input type="checkbox" class="todo-cb" ${s.done?'checked':''} onchange="toggleSub('${t.id}','${s.id}')"><span class="sub-text">${escHtml(s.text)}</span><button class="btn-del" style="opacity:.4;width:16px;height:16px;font-size:11px" onclick="removeSub('${t.id}','${s.id}')">×</button></div>`).join('')}<div class="todo-sub-item" style="opacity:.6;cursor:pointer" onclick="startAddSub('${t.id}')">+ 添加子任务</div></div>`}).join('')}</div>`;}else{h+=`<div class="empty-state">${activeDay==='today'?'今天暂时空白，添加你的第一个任务 ✦':'为明天做好准备 🌙'}</div>`;}
+h+=`<div class="todo-footer"><button class="btn-sm" onclick="toggleSubInput()">+ 子任务</button><span style="font-size:11px;color:var(--text-light)">${dt.length?`完成 ${dt.filter(t=>t.done).length}/${dt.length}`:''}</span></div><div class="todo-sub-input" id="todo-sub-input"><input type="text" id="sub-input" placeholder="子任务描述..." maxlength="40"><button class="btn-add" style="width:28px;height:28px;font-size:14px;" onclick="addSubToActive()">+</button></div>`;
+$('#module-content').innerHTML=`<div class="card"><div class="card-header"><div class="card-title"><span class="dot"></span>Day Todo</div><div class="todo-tabs">${['today','tomorrow'].map(d=>`<button class="todo-tab ${activeDay===d?'active':''}" data-day="${d}">${d==='today'?'今天':'明天'}</button>`).join('')}</div></div>${h}</div>`;bindTodoEvents();}
+function bindTodoEvents(){document.querySelectorAll('.todo-tab').forEach(t=>{t.addEventListener('click',()=>{document.querySelectorAll('.todo-tab').forEach(x=>x.classList.remove('active'));t.classList.add('active');activeDay=t.dataset.day;activeSubTarget=null;renderTodo();});});$('#todo-input')?.addEventListener('keydown',e=>{if(e.key==='Enter')addTodo();});$('#sub-input')?.addEventListener('keydown',e=>{if(e.key==='Enter')addSubToActive();});}
+async function addTodo(){const t=$('#todo-input')?.value?.trim();if(!t)return toast('请输入任务');const tm=$('#todo-time')?.value||'',ts=fmtDate(new Date());const mx=Math.max(...todos.filter(x=>x.day===activeDay).map(x=>x.order),0);todos.push({id:Date.now().toString(),text:t,time:tm,day:activeDay,date:ts,done:false,order:mx+1,subtasks:[],note:'',migrated:false});await saveCloud('todos',todos);renderTodo();}
+async function toggleTodo(id){const t=todos.find(t=>t.id===id);if(t){t.done=!t.done;await saveCloud('todos',todos);renderTodo();}}
+async function removeTodo(id){todos=todos.filter(t=>t.id!==id);await saveCloud('todos',todos);renderTodo();}
+async function toggleSub(tid,sid){const t=todos.find(t=>t.id===tid);if(!t)return;const s=t.subtasks.find(s=>s.id===sid);if(s){s.done=!s.done;await saveCloud('todos',todos);renderTodo();}}
+async function removeSub(tid,sid){const t=todos.find(t=>t.id===tid);if(t){t.subtasks=t.subtasks.filter(s=>s.id!==sid);await saveCloud('todos',todos);renderTodo();}}
+function toggleSubView(id){activeSubTarget=activeSubTarget===id?null:id;renderTodo();}
+function startAddSub(id){activeSubTarget=id;renderTodo();}
+function toggleSubInput(){$('#todo-sub-input')?.classList.toggle('show');}
+async function addSubToActive(){const t=$('#sub-input')?.value?.trim();if(!t||!activeSubTarget)return toast('请先展开一个任务的子任务');const x=todos.find(x=>x.id===activeSubTarget);if(!x)return;x.subtasks.push({id:Date.now().toString(),text:t,done:false});await saveCloud('todos',todos);renderTodo();}
+let dragId=null;function onDragStart(e){dragId=e.target.closest('.todo-item').dataset.id;e.target.closest('.todo-item').classList.add('dragging');e.dataTransfer.effectAllowed='move';}function onDragOver(e){e.preventDefault();e.dataTransfer.dropEffect='move';}function onDragEnd(e){e.target.closest('.todo-item')?.classList.remove('dragging');dragId=null;}async function onDrop(e){e.preventDefault();const tl=e.target.closest('.todo-item');if(!tl||!dragId||dragId===tl.dataset.id)return;const sm=todos.filter(t=>t.day===activeDay).sort((a,b)=>a.order-b.order);const di=sm.findIndex(t=>t.id===dragId),ti=sm.findIndex(t=>t.id===tl.dataset.id);const dr=sm.splice(di,1)[0];sm.splice(ti,0,dr);sm.forEach((t,i)=>t.order=i+1);sm.forEach(t=>{const i=todos.findIndex(x=>x.id===t.id);if(i>=0)todos[i].order=t.order;});await saveCloud('todos',todos);renderTodo();}
 
-  const dayTodos = todos.filter(t=>t.day===activeDay).sort((a,b)=>a.order-b.order);
-  let html = '';
-  if (migrated>0) html += `<div class="todo-migrate">📥 昨天 <b>${migrated}</b> 项未完成，已移入今天</div>`;
-  html += `<div class="input-row">
-    <input type="time" id="todo-time" value="" placeholder="⏰" style="width:74px;flex:none;font-size:12px;">
-    <input type="text" id="todo-input" placeholder="今天要做什么？" maxlength="60">
-    <button class="btn-add" onclick="addTodo()">+</button>
-  </div>`;
+// ── Life ──
+function renderLife(){const c={daily:[],shopping:[],other:[]};lifeItems.forEach(l=>{if(c[l.cat])c[l.cat].push(l);});let h='';['daily','shopping','other'].forEach(cat=>{const lb={daily:'日常',shopping:'采购',other:'其他'}[cat],it=c[cat];h+=`<div class="life-category"><div class="life-cat-label">${lb}</div>`;h+=it.map(l=>{const i=lifeItems.indexOf(l);return`<div class="list-item ${l.done?'done':''}"><input type="checkbox" class="todo-cb" ${l.done?'checked':''} onchange="toggleLife(${i})"><span class="item-text">${escHtml(l.text)}</span><button class="btn-del" onclick="event.stopPropagation();removeLife(${i})">×</button></div>`;}).join('');h+='</div>';});h+=`<div class="input-row" style="margin-top:10px;"><select id="life-cat" style="width:70px;flex:none;border:1px solid var(--border);border-radius:var(--radius-xs);padding:9px 8px;font-size:12px;background:var(--bg);color:var(--text);outline:none;"><option value="daily">日常</option><option value="shopping">采购</option><option value="other">其他</option></select><input type="text" id="life-input" placeholder="生活事项..." maxlength="40"><button class="btn-add" onclick="addLife()">+</button></div>`;$('#module-content').innerHTML=`<div class="card"><div class="card-header"><div class="card-title"><span class="dot"></span>生活清单</div></div>${h}</div>`;$('#life-input')?.addEventListener('keydown',e=>{if(e.key==='Enter')addLife();});}
+async function addLife(){const t=$('#life-input')?.value?.trim(),c=$('#life-cat')?.value;if(!t)return toast('请输入');lifeItems.unshift({text:t,cat:c,done:false,id:Date.now()});await saveCloud('life',lifeItems);renderLife();}
+async function toggleLife(i){lifeItems[i].done=!lifeItems[i].done;await saveCloud('life',lifeItems);renderLife();}
+async function removeLife(i){lifeItems.splice(i,1);await saveCloud('life',lifeItems);renderLife();}
 
-  if (dayTodos.length) {
-    html += `<div class="todo-list">${dayTodos.map(t => {
-      const doneSubs = (t.subtasks||[]).filter(s=>s.done).length, totalSubs = (t.subtasks||[]).length;
-      return `<div class="todo-item ${t.done?'done':''}" draggable="true" data-id="${t.id}" ondragstart="onDragStart(event)" ondragover="onDragOver(event)" ondragend="onDragEnd(event)" ondrop="onDrop(event)">
-        <div class="todo-drag"><span></span><span></span></div>
-        <input type="checkbox" class="todo-cb" ${t.done?'checked':''} onchange="toggleTodo('${t.id}')">
-        <div class="todo-body"><div class="todo-text">${escHtml(t.text)}</div>
-        <div class="todo-meta">${t.time?`<span class="todo-time">⏰ ${t.time}</span>`:''}${totalSubs?`<span class="todo-sub-count" onclick="toggleSubView('${t.id}')">📎 ${doneSubs}/${totalSubs}</span>`:''}${t.migrated?'<span style="color:var(--accent)">📥 昨日</span>':''}</div></div>
-        <div class="todo-actions">
-          <button class="btn-del" onclick="event.stopPropagation();startAddSub('${t.id}')">+</button>
-          <button class="btn-del" onclick="event.stopPropagation();removeTodo('${t.id}')">×</button>
-        </div>
-      </div>
-      <div class="todo-subtasks ${activeSubTarget===t.id?'show':''}" id="subs-${t.id}">
-        ${(t.subtasks||[]).map(s=>`<div class="todo-sub-item ${s.done?'done':''}"><input type="checkbox" class="todo-cb" ${s.done?'checked':''} onchange="toggleSub('${t.id}','${s.id}')"><span class="sub-text">${escHtml(s.text)}</span><button class="btn-del" style="opacity:.4;width:16px;height:16px;font-size:11px" onclick="removeSub('${t.id}','${s.id}')">×</button></div>`).join('')}
-        <div class="todo-sub-item" style="opacity:.6;cursor:pointer" onclick="startAddSub('${t.id}')">+ 添加子任务</div>
-      </div>`;
-    }).join('')}</div>`;
-  } else {
-    html += `<div class="empty-state">${activeDay==='today'?'今天暂时空白，添加你的第一个任务 ✦':'为明天做好准备 🌙'}</div>`;
-  }
+// ── Travel ──
+function renderTravel(){let h=`<div class="travel-form" id="travel-form"><input type="text" id="travel-location" placeholder="目的地" maxlength="20"><div class="form-row"><input type="date" id="travel-date" style="flex:1"><input type="text" id="travel-img-url" placeholder="图片URL（可选）" style="flex:1.5"></div><textarea id="travel-note" placeholder="简单记一笔..." maxlength="120"></textarea><button class="btn-add" style="width:auto;padding:0 16px;margin-top:4px;" onclick="addTravel()">保存</button><button class="btn-sm" style="margin-left:8px;" onclick="toggleTravelForm()">取消</button></div>`;h+=travels.map((t,i)=>`<div class="travel-item" onclick="openTravel(${i})"><div class="travel-date">${t.date}</div><div class="travel-location">${escHtml(t.location)}</div>${t.note?`<div class="travel-note">${escHtml(t.note)}</div>`:''}${t.img?`<div class="travel-img"><img src="${escHtml(t.img)}" alt="" onerror="this.style.display='none'" loading="lazy"></div>`:''}</div>`).join('');if(!travels.length)h+='<div class="empty-state">还没有旅行记录，世界在等你 🌍</div>';$('#module-content').innerHTML=`<div class="card"><div class="card-header"><div class="card-title"><span class="dot"></span>旅游日志</div><button class="btn-sm" onclick="toggleTravelForm()">+ 记录</button></div>${h}</div>`;}
+function toggleTravelForm(){$('#travel-form')?.classList.toggle('show');}
+async function addTravel(){const l=$('#travel-location')?.value?.trim(),d=$('#travel-date')?.value||fmtDate(new Date()),n=$('#travel-note')?.value?.trim(),i=$('#travel-img-url')?.value?.trim();if(!l)return toast('请输入目的地');travels.unshift({location:l,date:d,note:n,img:i,id:Date.now()});await saveCloud('travel',travels);renderTravel();}
+function openTravel(i){const t=travels[i];$('#modal-location').textContent=t.location;$('#modal-note').textContent=t.note||'';$('#modal-date').textContent=t.date;$('#modal-img').src=t.img||'';$('#modal-img').style.display=t.img?'':'none';$('#modal-overlay').classList.add('show');}
+function closeModal(){$('#modal-overlay').classList.remove('show');}
 
-  html += `<div class="todo-footer">
-    <button class="btn-sm" onclick="toggleSubInput()">+ 子任务</button>
-    <span style="font-size:11px;color:var(--text-light)">${dayTodos.length?`完成 ${dayTodos.filter(t=>t.done).length}/${dayTodos.length}`:''}</span>
-  </div>
-  <div class="todo-sub-input" id="todo-sub-input">
-    <input type="text" id="sub-input" placeholder="子任务描述..." maxlength="40">
-    <button class="btn-add" style="width:28px;height:28px;font-size:14px;" onclick="addSubToActive()">+</button>
-  </div>`;
+// ── Mood ──
+function renderMood(){const r=moods.slice(0,12);let h=`<div class="mood-grid">${['😊','😌','😐','😔','😤','🥰','😴'].map(m=>`<button class="mood-btn" data-mood="${m}" onclick="selectMood(event,'${m}')">${m}</button>`).join('')}</div><input type="text" class="mood-note" id="mood-note" placeholder="此刻想说的话..." maxlength="60"><button class="btn-add" style="width:auto;padding:0 20px;" onclick="addMood()">记录心情</button><div class="mood-history">${r.map(m=>`<div class="mood-entry"><span class="m-emoji">${m.mood}</span><span class="m-text">${escHtml(m.note||'...')}</span><span class="m-date">${m.date}</span></div>`).join('')||'<div class="empty-state">记录今天的心情吧 💭</div>'}</div>`;$('#module-content').innerHTML=`<div class="card"><div class="card-header"><div class="card-title"><span class="dot"></span>心情记录</div></div>${h}</div>`;}
+function selectMood(e,m){document.querySelectorAll('.mood-btn').forEach(b=>b.classList.remove('selected'));e.target.classList.add('selected');selectedMood=m;}
+async function addMood(){if(!selectedMood)return toast('请先选择一个心情');const n=$('#mood-note')?.value?.trim(),o=new Date();moods.unshift({mood:selectedMood,note:n,date:fmtDate(o)+' '+String(o.getHours()).padStart(2,'0')+':'+String(o.getMinutes()).padStart(2,'0'),id:Date.now()});await saveCloud('mood',moods);renderMood();selectedMood='';}
 
-  $('#module-content').innerHTML = `<div class="card">
-    <div class="card-header">
-      <div class="card-title"><span class="dot"></span>Day Todo</div>
-      <div class="todo-tabs">${['today','tomorrow'].map(d=>`<button class="todo-tab ${activeDay===d?'active':''}" data-day="${d}">${d==='today'?'今天':'明天'}</button>`).join('')}</div>
-    </div>${html}</div>`;
-
-  bindTodoEvents();
-}
-
-function bindTodoEvents() {
-  document.querySelectorAll('.todo-tab').forEach(tab => {
-    tab.addEventListener('click', () => {
-      document.querySelectorAll('.todo-tab').forEach(t=>t.classList.remove('active'));
-      tab.classList.add('active'); activeDay=tab.dataset.day; activeSubTarget=null; renderTodo();
-    });
-  });
-  document.getElementById('todo-input')?.addEventListener('keydown', e => { if(e.key==='Enter') addTodo(); });
-  document.getElementById('sub-input')?.addEventListener('keydown', e => { if(e.key==='Enter') addSubToActive(); });
-}
-
-async function addTodo() {
-  const text = $('#todo-input')?.value?.trim(); if (!text) return toast('请输入任务');
-  const time = $('#todo-time')?.value || '', todayStr = fmtDate(new Date());
-  const maxOrder = Math.max(...todos.filter(t=>t.day===activeDay).map(t=>t.order), 0);
-  todos.push({ id:Date.now().toString(), text, time, day:activeDay, date:todayStr, done:false, order:maxOrder+1, subtasks:[], note:'', migrated:false });
-  await saveCloud('todos', todos); renderTodo();
-}
-async function toggleTodo(id) { const t=todos.find(t=>t.id===id); if(t){t.done=!t.done; await saveCloud('todos',todos); renderTodo();} }
-async function removeTodo(id) { todos=todos.filter(t=>t.id!==id); await saveCloud('todos',todos); renderTodo(); }
-async function toggleSub(tid, sid) { const t=todos.find(t=>t.id===tid); if(!t)return; const s=t.subtasks.find(s=>s.id===sid); if(s){s.done=!s.done; await saveCloud('todos',todos); renderTodo();} }
-async function removeSub(tid, sid) { const t=todos.find(t=>t.id===tid); if(t){t.subtasks=t.subtasks.filter(s=>s.id!==sid); await saveCloud('todos',todos); renderTodo();} }
-function toggleSubView(id) { activeSubTarget=activeSubTarget===id?null:id; renderTodo(); }
-function startAddSub(id) { activeSubTarget=id; renderTodo(); }
-function toggleSubInput() { $('#todo-sub-input')?.classList.toggle('show'); }
-async function addSubToActive() { const text=$('#sub-input')?.value?.trim(); if(!text||!activeSubTarget) return toast('请先展开一个任务的子任务'); const t=todos.find(t=>t.id===activeSubTarget); if(!t)return; t.subtasks.push({id:Date.now().toString(),text,done:false}); await saveCloud('todos',todos); renderTodo(); }
-
-let dragId=null;
-function onDragStart(e) { dragId=e.target.closest('.todo-item').dataset.id; e.target.closest('.todo-item').classList.add('dragging'); e.dataTransfer.effectAllowed='move'; }
-function onDragOver(e) { e.preventDefault(); e.dataTransfer.dropEffect='move'; }
-function onDragEnd(e) { e.target.closest('.todo-item')?.classList.remove('dragging'); dragId=null; }
-async function onDrop(e) { e.preventDefault(); const tel=e.target.closest('.todo-item'); if(!tel||!dragId||dragId===tel.dataset.id) return; const same=todos.filter(t=>t.day===activeDay).sort((a,b)=>a.order-b.order); const di=same.findIndex(t=>t.id===dragId), ti=same.findIndex(t=>t.id===tel.dataset.id); const dr=same.splice(di,1)[0]; same.splice(ti,0,dr); same.forEach((t,i)=>t.order=i+1); same.forEach(t=>{const idx=todos.findIndex(x=>x.id===t.id); if(idx>=0)todos[idx].order=t.order;}); await saveCloud('todos',todos); renderTodo(); }
-
-// ── 2. Life List ──
-function renderLife() {
-  const cats = { daily:[], shopping:[], other:[] };
-  lifeItems.forEach(l => { if (cats[l.cat]) cats[l.cat].push(l); });
-  let html = '';
-  ['daily','shopping','other'].forEach(cat => {
-    const label = {daily:'日常',shopping:'采购',other:'其他'}[cat];
-    const items = cats[cat];
-    html += `<div class="life-category"><div class="life-cat-label">${label}</div>`;
-    html += items.map(l => {
-      const idx = lifeItems.indexOf(l);
-      return `<div class="list-item ${l.done?'done':''}"><input type="checkbox" class="todo-cb" ${l.done?'checked':''} onchange="toggleLife(${idx})"><span class="item-text">${escHtml(l.text)}</span><button class="btn-del" onclick="event.stopPropagation();removeLife(${idx})">×</button></div>`;
-    }).join('');
-    html += '</div>';
-  });
-  html += `<div class="input-row" style="margin-top:10px;">
-    <select id="life-cat" style="width:70px;flex:none;border:1px solid var(--border);border-radius:var(--radius-xs);padding:9px 8px;font-size:12px;background:var(--bg);color:var(--text);outline:none;">
-      <option value="daily">日常</option><option value="shopping">采购</option><option value="other">其他</option>
-    </select>
-    <input type="text" id="life-input" placeholder="生活事项..." maxlength="40">
-    <button class="btn-add" onclick="addLife()">+</button>
-  </div>`;
-
-  $('#module-content').innerHTML = `<div class="card"><div class="card-header"><div class="card-title"><span class="dot"></span>生活清单</div></div>${html}</div>`;
-  $('#life-input')?.addEventListener('keydown', e => { if(e.key==='Enter') addLife(); });
-}
-async function addLife() { const text=$('#life-input')?.value?.trim(), cat=$('#life-cat')?.value; if(!text) return toast('请输入'); lifeItems.unshift({text,cat,done:false,id:Date.now()}); await saveCloud('life',lifeItems); renderLife(); }
-async function toggleLife(i) { lifeItems[i].done=!lifeItems[i].done; await saveCloud('life',lifeItems); renderLife(); }
-async function removeLife(i) { lifeItems.splice(i,1); await saveCloud('life',lifeItems); renderLife(); }
-
-// ── 3. Travel ──
-function renderTravel() {
-  let html = `<div class="travel-form" id="travel-form">
-    <input type="text" id="travel-location" placeholder="目的地" maxlength="20">
-    <div class="form-row"><input type="date" id="travel-date" style="flex:1"><input type="text" id="travel-img-url" placeholder="图片URL（可选）" style="flex:1.5"></div>
-    <textarea id="travel-note" placeholder="简单记一笔..." maxlength="120"></textarea>
-    <button class="btn-add" style="width:auto;padding:0 16px;margin-top:4px;" onclick="addTravel()">保存</button>
-    <button class="btn-sm" style="margin-left:8px;" onclick="toggleTravelForm()">取消</button>
-  </div>`;
-  html += travels.map((t,i) => `
-    <div class="travel-item" onclick="openTravel(${i})">
-      <div class="travel-date">${t.date}</div>
-      <div class="travel-location">${escHtml(t.location)}</div>
-      ${t.note?`<div class="travel-note">${escHtml(t.note)}</div>`:''}
-      ${t.img?`<div class="travel-img"><img src="${escHtml(t.img)}" alt="" onerror="this.style.display='none'" loading="lazy"></div>`:''}
-    </div>`).join('');
-  if (!travels.length) html += '<div class="empty-state">还没有旅行记录，世界在等你 🌍</div>';
-
-  $('#module-content').innerHTML = `<div class="card">
-    <div class="card-header"><div class="card-title"><span class="dot"></span>旅游日志</div><button class="btn-sm" onclick="toggleTravelForm()">+ 记录</button></div>${html}</div>`;
-}
-function toggleTravelForm() { $('#travel-form')?.classList.toggle('show'); }
-async function addTravel() {
-  const loc=$('#travel-location')?.value?.trim(), date=$('#travel-date')?.value||fmtDate(new Date()), note=$('#travel-note')?.value?.trim(), img=$('#travel-img-url')?.value?.trim();
-  if (!loc) return toast('请输入目的地');
-  travels.unshift({location:loc,date,note,img,id:Date.now()}); await saveCloud('travel',travels); renderTravel();
-}
-function openTravel(i) { const t=travels[i]; $('#modal-location').textContent=t.location; $('#modal-note').textContent=t.note||''; $('#modal-date').textContent=t.date; $('#modal-img').src=t.img||''; $('#modal-img').style.display=t.img?'':'none'; $('#modal-overlay').classList.add('show'); }
-function closeModal() { $('#modal-overlay').classList.remove('show'); }
-
-// ── 4. Mood ──
-function renderMood() {
-  const recent = moods.slice(0,12);
-  let html = `<div class="mood-grid">${['😊','😌','😐','😔','😤','🥰','😴'].map(m=>`<button class="mood-btn" data-mood="${m}" onclick="selectMood(event,'${m}')">${m}</button>`).join('')}</div>
-  <input type="text" class="mood-note" id="mood-note" placeholder="此刻想说的话..." maxlength="60">
-  <button class="btn-add" style="width:auto;padding:0 20px;" onclick="addMood()">记录心情</button>
-  <div class="mood-history">${recent.map(m=>`<div class="mood-entry"><span class="m-emoji">${m.mood}</span><span class="m-text">${escHtml(m.note||'...')}</span><span class="m-date">${m.date}</span></div>`).join('')||'<div class="empty-state">记录今天的心情吧 💭</div>'}</div>`;
-  $('#module-content').innerHTML = `<div class="card"><div class="card-header"><div class="card-title"><span class="dot"></span>心情记录</div></div>${html}</div>`;
-}
-function selectMood(e, m) { document.querySelectorAll('.mood-btn').forEach(b=>b.classList.remove('selected')); e.target.classList.add('selected'); selectedMood=m; }
-async function addMood() {
-  if (!selectedMood) return toast('请先选择一个心情');
-  const note=$('#mood-note')?.value?.trim(), now=new Date();
-  moods.unshift({mood:selectedMood,note,date:fmtDate(now)+' '+String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0'),id:Date.now()});
-  await saveCloud('mood',moods); renderMood(); selectedMood='';
-}
-
-// ── 5. Body Management ──
-function getDaysInMonth(y,m) { return new Date(y,m+1,0).getDate(); }
-function getFirstDayOfMonth(y,m) { return new Date(y,m,1).getDay(); }
-
-function renderBody() {
-  const now=new Date(), y=now.getFullYear(), m=now.getMonth(), today=now.getDate();
-  const dim=getDaysInMonth(y,m), fdm=getFirstDayOfMonth(y,m);
-
-  let calHtml = '<div class="body-calendar">';
-  ['日','一','二','三','四','五','六'].forEach(d=>calHtml+=`<div class="ex-day-header">${d}</div>`);
-  for (let i=0;i<fdm;i++) calHtml+='<div></div>';
-  for (let d=1;d<=dim;d++) {
-    const dateStr=fmtDate(new Date(y,m,d));
-    const ex=exercises.find(e=>e.date===dateStr&&e.type!=='rest');
-    const wt=weights.find(w=>w.date===dateStr);
-    let cls = 'body-day'; if(d===today) cls+=' today';
-    if(ex&&wt) cls+=' both-done'; else if(ex) cls+=' ex-done'; else if(wt) cls+=' wt-done';
-    calHtml+=`<div class="${cls}" onclick="switchBodyTab('${dateStr}')">${d}</div>`;
-  }
-  calHtml += '</div>';
-
-  // Exercise panel
-  const monthStr=`${y}-${String(m+1).padStart(2,'0')}`;
-  const monthEx=exercises.filter(e=>e.date.startsWith(monthStr)&&e.type!=='rest');
-  let streak=0, check=new Date(y,m,today);
-  while(true){const ds=fmtDate(check);if(exercises.find(e=>e.date===ds&&e.type!=='rest')){streak++;check.setDate(check.getDate()-1);}else break;}
-  const todayEx=exercises.find(e=>e.date===fmtDate(now)&&e.type!=='rest');
-  const exHtml = `<div class="body-panel" id="panel-exercise" style="display:${bodyTrack==='exercise'?'':'none'}">
-    <div class="body-checkin-btn${todayEx?' checked':''}" id="btn-ex-checkin" onclick="toggleExerciseToday()">${todayEx?'<span>✓</span> 今日已打卡':'<span>✓</span> 今日运动打卡'}</div>
-    <div class="body-stats-row"><span>本月 <b>${monthEx.length}</b></span><span>连续 <b>${streak}</b></span><span>总计 <b>${exercises.filter(e=>e.type!=='rest').length}</b></span></div>
-  </div>`;
-
-  // Weight panel
-  weights.sort((a,b)=>a.date.localeCompare(b.date));
-  let wtHtml = '<div class="body-panel" id="panel-weight" style="display:'+(bodyTrack==='weight'?'':'none')+'">';
-  if (weights.length) {
-    const latest=weights[weights.length-1];
-    let deltaHtml='';
-    if (weights.length>=2) { const d=(latest.value-weights[weights.length-2].value).toFixed(1); deltaHtml=`<span class="weight-delta ${d>0?'up':'down'}">${d>0?'+':''}${d}</span>`; }
-    wtHtml+=`<div class="body-weight-now"><span class="bw-val">${latest.value}</span><span class="bw-unit">kg</span>${deltaHtml}</div>`;
-  } else { wtHtml+='<div class="body-weight-now"><span class="bw-val">--</span><span class="bw-unit">kg</span></div>'; }
-  wtHtml+=`<div class="body-weight-input"><input type="number" id="weight-input" placeholder="今日体重" step="0.1" min="30" max="200"><button class="btn-add" onclick="addWeight()">+</button></div>`;
-
-  let chartHtml='';
-  if (weights.length<2) { chartHtml='<text x="200" y="55" text-anchor="middle" fill="#999" font-size="11">记录体重以显示趋势</text>'; }
-  else {
-    const vals=weights.map(w=>w.value), min=Math.floor(Math.min(...vals)-1), max=Math.ceil(Math.max(...vals)+1), range=max-min||1;
-    const w=400,h=100,pad=10;
-    const pts=vals.map((v,i)=>{const x=pad+(i/(vals.length-1))*(w-pad*2);const y=h-16-((v-min)/range)*(h-32);return`${x},${y}`;});
-    const area=`M${pad},${h-16} L${pts.join(' L')} L${w-pad},${h-16} Z`;
-    chartHtml=`<defs><linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#8cbf8c" stop-opacity="0.2"/><stop offset="100%" stop-color="#8cbf8c" stop-opacity="0.02"/></linearGradient></defs><path d="${area}" fill="url(#bg)"/><polyline points="${pts.join(' ')}" fill="none" stroke="#8cbf8c" stroke-width="2" stroke-linecap="round"/>${vals.map((v,i)=>{const x=pad+(i/(vals.length-1))*(w-pad*2);const y=h-16-((v-min)/range)*(h-32);return`<circle cx="${x}" cy="${y}" r="3" fill="#fff" stroke="#8cbf8c" stroke-width="1.5"/>`;}).join('')}<text x="${w-pad}" y="12" text-anchor="end" fill="#999" font-size="9">${max}</text><text x="${w-pad}" y="${h-18}" text-anchor="end" fill="#999" font-size="9">${min}</text>`;
-  }
-  wtHtml+=`<div class="body-chart"><svg viewBox="0 0 400 100" preserveAspectRatio="none">${chartHtml}</svg></div>`;
-  const recent=[...weights].reverse().slice(0,6);
-  wtHtml+='<div class="body-recent">'+recent.map((w,i)=>{const idx=weights.indexOf(w);const d=idx>0?(w.value-weights[idx-1].value).toFixed(1):null;return`<div class="body-recent-item">${d?`<span class="br-delta ${d>0?'pos':'neg'}">${d>0?'+':''}${d}</span>`:''}<span class="br-date">${w.date}</span><span class="br-val">${w.value} kg</span></div>`;}).join('')+(recent.length?'':'<div class="empty-state">记录体重，看见变化</div>')+'</div>';
-  wtHtml+='</div>';
-
-  $('#module-content').innerHTML = `<div class="card">
-    <div class="card-header"><div class="card-title"><span class="dot"></span>身体管理</div>
-    <div class="body-tabs">${['exercise','weight'].map(t=>`<button class="body-tab ${bodyTrack===t?'active':''}" data-track="${t}" onclick="switchBodyTabClick('${t}')">${t==='exercise'?'🏃 运动':'⚖️ 体重'}</button>`).join('')}</div>
-    </div>${calHtml}${exHtml}${wtHtml}</div>`;
-  $('#weight-input')?.addEventListener('keydown', e => { if(e.key==='Enter') addWeight(); });
-}
-
-function switchBodyTabClick(track) { bodyTrack=track; renderBody(); }
-function switchBodyTab(dateStr) { bodyTrack=dateStr; renderBody(); }
-async function toggleExerciseToday() {
-  const date=fmtDate(new Date()), idx=exercises.findIndex(e=>e.date===date&&e.type!=='rest');
-  if(idx>=0){exercises.splice(idx,1);await saveCloud('exercise',exercises);renderBody();toast('已取消');}
-  else{exercises.push({date,type:'done',id:Date.now()});await saveCloud('exercise',exercises);renderBody();toast('打卡成功！');}
-}
-async function addWeight() {
-  const val=parseFloat($('#weight-input')?.value); if(isNaN(val)||val<30||val>200) return toast('请输入有效体重');
-  const date=fmtDate(new Date()), idx=weights.findIndex(w=>w.date===date);
-  if(idx>=0) weights[idx].value=val; else weights.push({date,value:val,id:Date.now()});
-  await saveCloud('weight',weights); renderBody();
-}
+// ── Body ──
+function gDIM(y,m){return new Date(y,m+1,0).getDate();}
+function gFDM(y,m){return new Date(y,m,1).getDay();}
+function renderBody(){const n=new Date(),y=n.getFullYear(),m=n.getMonth(),td=n.getDate();const dim=gDIM(y,m),fdm=gFDM(y,m);
+let h=`<div class="body-checkin-btn" id="btn-ex-checkin" onclick="toggleExerciseToday()"><span>✓</span> 今日运动打卡</div>
+<div class="body-calendar">${'日一二三四五六'.split('').map(d=>`<div class="ex-day-header">${d}</div>`).join('')}`;
+for(let i=0;i<fdm;i++)h+='<div></div>';
+for(let d=1;d<=dim;d++){const ds=fmtDate(new Date(y,m,d));const ex=exercises.find(e=>e.date===ds&&e.type!=='rest');const wt=weights.find(w=>w.date===ds);let c='body-day';if(d===td)c+=' today';if(ex&&wt)c+=' both-done';else if(ex)c+=' ex-done';else if(wt)c+=' wt-done';h+=`<div class="${c}">${d}</div>`;}
+h+='</div>';
+const ms=`${y}-${String(m+1).padStart(2,'0')}`,me=exercises.filter(e=>e.date.startsWith(ms)&&e.type!=='rest');let sk=0,ck=new Date(y,m,td);while(true){const ds=fmtDate(ck);if(exercises.find(e=>e.date===ds&&e.type!=='rest')){sk++;ck.setDate(ck.getDate()-1);}else break;}
+h+=`<div class="body-panel" style="display:${bodyTrack==='exercise'?'':'none'}" id="panel-exercise"><div class="body-stats-row"><span>本月 <b>${me.length}</b></span><span>连续 <b>${sk}</b></span><span>总计 <b>${exercises.filter(e=>e.type!=='rest').length}</b></span></div></div>`;
+weights.sort((a,b)=>a.date.localeCompare(b.date));
+let wh=`<div class="body-panel" style="display:${bodyTrack==='weight'?'':'none'}" id="panel-weight">`;
+if(weights.length){const l=weights[weights.length-1];let dh='';if(weights.length>=2){const d=(l.value-weights[weights.length-2].value).toFixed(1);dh=`<span class="weight-delta ${d>0?'up':'down'}">${d>0?'+':''}${d}</span>`;}wh+=`<div class="body-weight-now"><span class="bw-val">${l.value}</span><span class="bw-unit">kg</span>${dh}</div>`;}else wh+='<div class="body-weight-now"><span class="bw-val">--</span><span class="bw-unit">kg</span></div>';
+wh+=`<div class="body-weight-input"><input type="number" id="weight-input" placeholder="今日体重" step="0.1" min="30" max="200"><button class="btn-add" onclick="addWeight()">+</button></div>`;
+let ch='';
+if(weights.length<2){ch='<text x="200" y="55" text-anchor="middle" fill="#999" font-size="11">记录体重以显示趋势</text>';}else{const v=weights.map(w=>w.value),mn=Math.floor(Math.min(...v)-1),mx=Math.ceil(Math.max(...v)+1),rg=mx-mn||1,w=400,hp=100,pd=10;const pt=v.map((v,i)=>{const x=pd+(i/(v.length-1))*(w-pd*2);const y=hp-16-((v-mn)/rg)*(hp-32);return`${x},${y}`;});ch=`<defs><linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#8cbf8c" stop-opacity="0.2"/><stop offset="100%" stop-color="#8cbf8c" stop-opacity="0.02"/></linearGradient></defs><path d="M${pd},${hp-16} L${pt.join(' L')} L${w-pd},${hp-16} Z" fill="url(#bg)"/><polyline points="${pt.join(' ')}" fill="none" stroke="#8cbf8c" stroke-width="2" stroke-linecap="round"/>${v.map((v,i)=>{const x=pd+(i/(v.length-1))*(w-pd*2);const y=hp-16-((v-mn)/rg)*(hp-32);return`<circle cx="${x}" cy="${y}" r="3" fill="#fff" stroke="#8cbf8c" stroke-width="1.5"/>`;}).join('')}<text x="${w-pd}" y="12" text-anchor="end" fill="#999" font-size="9">${mx}</text><text x="${w-pd}" y="${hp-18}" text-anchor="end" fill="#999" font-size="9">${mn}</text>`;}
+wh+=`<div class="body-chart"><svg viewBox="0 0 400 100" preserveAspectRatio="none">${ch}</svg></div>`;
+const re=[...weights].reverse().slice(0,6);wh+='<div class="body-recent">'+re.map((w,i)=>{const idx=weights.indexOf(w);const d=idx>0?(w.value-weights[idx-1].value).toFixed(1):null;return`<div class="body-recent-item">${d?`<span class="br-delta ${d>0?'pos':'neg'}">${d>0?'+':''}${d}</span>`:''}<span class="br-date">${w.date}</span><span class="br-val">${w.value} kg</span></div>`;}).join('')+(re.length?'':'<div class="empty-state">记录体重，看见变化</div>')+'</div>';wh+='</div>';
+$('#module-content').innerHTML=`<div class="card"><div class="card-header"><div class="card-title"><span class="dot"></span>身体管理</div><div class="body-tabs">${['exercise','weight'].map(t=>`<button class="body-tab ${bodyTrack===t?'active':''}" data-track="${t}" onclick="switchBodyTabClick('${t}')">${t==='exercise'?'🏃 运动':'⚖️ 体重'}</button>`).join('')}</div></div>${h}${wh}</div>`;
+const be=exercises.find(e=>e.date===fmtDate(new Date())&&e.type!=='rest');const btn=$('#btn-ex-checkin');if(btn){btn.textContent=be?'✓ 今日已打卡':'✓ 今日运动打卡';btn.className='body-checkin-btn'+(be?' checked':'');}
+$('#weight-input')?.addEventListener('keydown',e=>{if(e.key==='Enter')addWeight();});}
+function switchBodyTabClick(t){bodyTrack=t;renderBody();}
+async function toggleExerciseToday(){const d=fmtDate(new Date()),i=exercises.findIndex(e=>e.date===d&&e.type!=='rest');if(i>=0){exercises.splice(i,1);await saveCloud('exercise',exercises);renderBody();toast('已取消');}else{exercises.push({date:d,type:'done',id:Date.now()});await saveCloud('exercise',exercises);renderBody();toast('打卡成功！');}}
+async function addWeight(){const v=parseFloat($('#weight-input')?.value);if(isNaN(v)||v<30||v>200)return toast('请输入有效体重');const d=fmtDate(new Date()),i=weights.findIndex(w=>w.date===d);if(i>=0)weights[i].value=v;else weights.push({date:d,value:v,id:Date.now()});await saveCloud('weight',weights);renderBody();}
 
 // ── Init ──
-updateHeader(); activeDay = currentDay();
-
-(async function init() {
-  const seed = await bootstrap();
-  if (seed) { todos=seed.todos||[]; lifeItems=seed.life||[]; travels=seed.travel||[]; moods=seed.mood||[]; exercises=seed.exercise||[]; weights=seed.weight||[]; }
-  else { todos=loadLocal('todos'); lifeItems=loadLocal('life'); travels=loadLocal('travel'); moods=loadLocal('mood'); exercises=loadLocal('exercise'); weights=loadLocal('weight'); }
-  renderCurrent();
-})();
+updateHeader();activeDay=currentDay();
+(async function(){const s=await bootstrap();if(s){todos=s.todos||[];lifeItems=s.life||[];travels=s.travel||[];moods=s.mood||[];exercises=s.exercise||[];weights=s.weight||[];}else{todos=loadLocal('todos');lifeItems=loadLocal('life');travels=loadLocal('travel');moods=loadLocal('mood');exercises=loadLocal('exercise');weights=loadLocal('weight');}renderCurrent();})();
 </script>
 </body>
 </html>
