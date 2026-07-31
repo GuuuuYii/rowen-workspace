@@ -479,6 +479,74 @@
   }
   .todo-sub-input { margin-top: 8px; display: none; }
   .todo-sub-input.show { display: flex; gap: 6px; animation: fadeSlideIn .25s ease; }
+
+  /* ── MarkTimes-style Body Management ── */
+  .body-tabs { display: flex; gap: 2px; background: var(--bg); border-radius: 20px; padding: 3px; }
+  .body-tab {
+    border: none; background: none; font-size: 12px; color: var(--text-soft);
+    padding: 5px 12px; border-radius: 18px; cursor: pointer; font-weight: 500;
+    transition: all var(--transition);
+  }
+  .body-tab.active { background: #fff; color: var(--text); box-shadow: 0 1px 3px rgba(0,0,0,.05); }
+  .body-calendar {
+    display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin: 14px 0 12px;
+  }
+  .body-day {
+    aspect-ratio: 1; border-radius: 4px; font-size: 10px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; transition: all var(--transition); color: var(--text-soft);
+    position: relative; background: var(--bg);
+  }
+  .body-day:hover { transform: scale(1.1); }
+  .body-day.today { font-weight: 700; color: #7eb8a0; }
+  .body-day.ex-done { background: #d4e8dc; color: #4a8; }
+  .body-day.wt-done { background: #e8dcd4; color: #a86; }
+  .body-day.both-done { background: linear-gradient(135deg, #d4e8dc 50%, #e8dcd4 50%); color: #4a8; font-weight: 600; }
+  .body-day .bd-dot {
+    position: absolute; bottom: 2px; width: 3px; height: 3px; border-radius: 50%;
+  }
+  .body-day.ex-done .bd-dot { background: #4a8; }
+  .body-day.wt-done .bd-dot { background: #a86; }
+
+  .body-panel { animation: fadeSlideIn .3s ease; }
+  .body-quick { display: flex; flex-direction: column; gap: 10px; }
+  .body-checkin-btn {
+    width: 100%; padding: 10px; border: 1.5px dashed #d0ddd6; border-radius: var(--radius-sm);
+    background: #f7faf8; color: var(--text-soft); font-size: 13px; cursor: pointer;
+    transition: all var(--transition); display: flex; align-items: center; justify-content: center; gap: 6px;
+  }
+  .body-checkin-btn:hover { border-color: #7eb8a0; color: #4a8; background: #ecf6f0; }
+  .body-checkin-btn.checked { background: #d4e8dc; border-color: #7eb8a0; color: #4a8; border-style: solid; }
+  .body-checkin-btn.checked span { color: #4a8; font-weight: 700; }
+  .body-stats-row {
+    display: flex; justify-content: space-around; font-size: 11px; color: var(--text-light);
+  }
+  .body-stats-row b { color: var(--text); font-size: 16px; font-weight: 500; display: block; }
+  .body-weight-now {
+    display: flex; align-items: flex-end; gap: 6px; margin-bottom: 10px;
+  }
+  .bw-val { font-size: 40px; font-weight: 300; line-height: 1; }
+  .bw-unit { font-size: 13px; color: var(--text-light); margin-bottom: 2px; }
+  .body-weight-input { display: flex; gap: 6px; margin-bottom: 12px; }
+  .body-weight-input input {
+    flex: 1; border: 1px solid var(--border); border-radius: var(--radius-xs);
+    padding: 8px 12px; font-size: 13px; background: var(--bg); outline: none; color: var(--text);
+  }
+  .body-weight-input input:focus { border-color: #7eb8a0; }
+  .body-chart { width: 100%; height: 100px; border-radius: var(--radius-sm); overflow: hidden; margin-bottom: 10px; }
+  .body-chart svg { width: 100%; height: 100%; }
+  .body-recent { max-height: 100px; overflow-y: auto; }
+  .body-recent-item {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 5px 0; border-bottom: 1px solid var(--border); font-size: 12px;
+    animation: fadeSlideIn .35s ease both;
+  }
+  .body-recent-item:last-child { border-bottom: none; }
+  .body-recent-item .br-date { color: var(--text-light); }
+  .body-recent-item .br-val { font-weight: 500; }
+  .body-recent-item .br-delta { font-size: 10px; }
+  .body-recent-item .br-delta.pos { color: #c88; }
+  .body-recent-item .br-delta.neg { color: #8a8; }
 </style>
 </head>
 <body>
@@ -597,53 +665,51 @@
       <div class="mood-history" id="mood-history"></div>
     </div>
 
-    <!-- 6. 运动打卡 -->
-    <div class="card" id="card-exercise">
+    <!-- 6. 身体管理 (MarkTimes风格) -->
+    <div class="card" id="card-body">
       <div class="card-header">
-        <div class="card-title"><span class="dot" style="background:var(--sage)"></span>运动打卡</div>
-        <span class="card-count" id="ex-count">0</span>
+        <div class="card-title"><span class="dot" style="background:#7eb8a0"></span>身体管理</div>
+        <div class="body-tabs" id="body-tabs">
+          <button class="body-tab active" data-track="exercise">🏃 运动</button>
+          <button class="body-tab" data-track="weight">⚖️ 体重</button>
+        </div>
       </div>
-      <div class="ex-calendar" id="ex-calendar">
+      <!-- Shared calendar heatmap -->
+      <div class="body-calendar" id="body-calendar">
         <div class="ex-day-header">日</div><div class="ex-day-header">一</div>
         <div class="ex-day-header">二</div><div class="ex-day-header">三</div>
         <div class="ex-day-header">四</div><div class="ex-day-header">五</div>
         <div class="ex-day-header">六</div>
       </div>
-      <div class="ex-stats">
-        <div class="ex-stat">
-          <div class="ex-stat-val" id="ex-month">0</div>
-          <div class="ex-stat-label">本月打卡</div>
+      <!-- Exercise panel -->
+      <div class="body-panel" id="panel-exercise">
+        <div class="body-quick">
+          <button class="body-checkin-btn" id="btn-ex-checkin" onclick="toggleExerciseToday()">
+            <span>✓</span> 今日运动打卡
+          </button>
+          <div class="body-stats-row">
+            <span>本月 <b id="ex-month">0</b> 天</span>
+            <span>连续 <b id="ex-streak">0</b> 天</span>
+            <span>总计 <b id="ex-total">0</b> 天</span>
+          </div>
         </div>
-        <div class="ex-stat">
-          <div class="ex-stat-val" id="ex-streak">0</div>
-          <div class="ex-stat-label">连续天数</div>
+      </div>
+      <!-- Weight panel -->
+      <div class="body-panel" id="panel-weight" style="display:none">
+        <div class="body-weight-now">
+          <span class="bw-val" id="weight-now">--</span>
+          <span class="bw-unit">kg</span>
+          <span class="weight-delta" id="weight-delta" style="display:none"></span>
         </div>
-        <div class="ex-stat">
-          <div class="ex-stat-val" id="ex-total">0</div>
-          <div class="ex-stat-label">总计</div>
+        <div class="body-weight-input">
+          <input type="number" id="weight-input" placeholder="今日体重" step="0.1" min="30" max="200">
+          <button class="btn-add" onclick="addWeight()">+</button>
         </div>
+        <div class="body-chart" id="body-chart">
+          <svg viewBox="0 0 400 100" preserveAspectRatio="none"></svg>
+        </div>
+        <div class="body-recent" id="weight-history"></div>
       </div>
-    </div>
-
-    <!-- 7. 体重管理 -->
-    <div class="card" id="card-weight">
-      <div class="card-header">
-        <div class="card-title"><span class="dot" style="background:#d8c8c0"></span>体重管理</div>
-        <span class="card-count" id="weight-count">0</span>
-      </div>
-      <div class="weight-display">
-        <div class="weight-now" id="weight-now">--</div>
-        <div class="weight-unit">kg</div>
-        <div class="weight-delta" id="weight-delta" style="display:none"></div>
-      </div>
-      <div class="weight-input-row">
-        <input type="number" id="weight-input" placeholder="今日体重 (kg)" step="0.1" min="30" max="200">
-        <button class="btn-add" onclick="addWeight()">+</button>
-      </div>
-      <div class="weight-chart" id="weight-chart">
-        <svg viewBox="0 0 400 120" preserveAspectRatio="none"></svg>
-      </div>
-      <div class="weight-history" id="weight-history"></div>
     </div>
   </div>
 </div>
@@ -755,8 +821,8 @@ function setupRealtime() {
           case 'life': lifeItems = d; renderLife(); break;
           case 'travel': travels = d; renderTravels(); break;
           case 'mood': moods = d; renderMoods(); break;
-          case 'exercise': exercises = d; renderExercise(); break;
-          case 'weight': weights = d; renderWeight(); break;
+          case 'exercise': exercises = d; renderBody(); break;
+          case 'weight': weights = d; renderBody(); break;
         }
         toast('📡 数据已同步');
       }
@@ -1094,64 +1160,70 @@ async function addMood() {
   toast('心情已记录');
 }
 
-// ── 6. Exercise ──
+// ── 6. Body Management (MarkTimes) ──
+let bodyTrack = 'exercise';
 function getDaysInMonth(y, m) { return new Date(y, m+1, 0).getDate(); }
 function getFirstDayOfMonth(y, m) { return new Date(y, m, 1).getDay(); }
-function renderExercise() {
+
+function renderBody() {
   const now = new Date();
   const y = now.getFullYear(), m = now.getMonth(), today = now.getDate();
   const daysInMonth = getDaysInMonth(y, m);
   const firstDay = getFirstDayOfMonth(y, m);
-  const cal = $('#ex-calendar');
-  cal.querySelectorAll('.ex-day').forEach(d => d.remove());
-  for (let i = 0; i < firstDay; i++) {
-    const empty = document.createElement('div');
-    empty.className = 'ex-day'; cal.appendChild(empty);
-  }
+  const cal = $('#body-calendar');
+  cal.querySelectorAll('.body-day').forEach(d => d.remove());
+
+  for (let i = 0; i < firstDay; i++) { cal.appendChild(document.createElement('div')); }
   for (let d = 1; d <= daysInMonth; d++) {
-    const dayEl = document.createElement('div');
-    dayEl.className = 'ex-day';
-    dayEl.textContent = d;
     const dateStr = fmtDate(new Date(y, m, d));
-    const ex = exercises.find(e => e.date === dateStr);
-    if (d === today) dayEl.classList.add('today');
-    if (ex) dayEl.classList.add(ex.type === 'rest' ? 'rest' : 'done');
-    dayEl.title = dateStr;
-    dayEl.addEventListener('click', () => toggleExercise(dateStr, d === today));
-    cal.appendChild(dayEl);
+    const ex = exercises.find(e => e.date === dateStr && e.type !== 'rest');
+    const wt = weights.find(w => w.date === dateStr);
+    const el = document.createElement('div');
+    el.className = 'body-day';
+    el.textContent = d;
+    if (d === today) el.classList.add('today');
+    if (ex && wt) el.classList.add('both-done');
+    else if (ex) el.classList.add('ex-done');
+    else if (wt) el.classList.add('wt-done');
+    el.title = `${dateStr}${ex?' 运动✓':''}${wt?' 体重'+wt.value+'kg':''}`;
+    el.addEventListener('click', () => {
+      bodyTrack = ex ? 'weight' : 'exercise';
+      document.querySelectorAll('.body-tab').forEach(t => t.classList.toggle('active', t.dataset.track === bodyTrack));
+      switchPanel();
+    });
+    cal.appendChild(el);
   }
+
+  // Exercise stats
   const monthStr = `${y}-${String(m+1).padStart(2,'0')}`;
   const monthEx = exercises.filter(e => e.date.startsWith(monthStr) && e.type !== 'rest');
   $('#ex-month').textContent = monthEx.length;
   $('#ex-total').textContent = exercises.filter(e => e.type !== 'rest').length;
-  let streak = 0;
-  let check = new Date(y, m, today);
+  let streak = 0, check = new Date(y, m, today);
   while (true) {
     const ds = fmtDate(check);
-    const found = exercises.find(e => e.date === ds && e.type !== 'rest');
-    if (found) { streak++; check.setDate(check.getDate()-1); }
+    if (exercises.find(e => e.date===ds&&e.type!=='rest')) { streak++; check.setDate(check.getDate()-1); }
     else break;
   }
   $('#ex-streak').textContent = streak;
-  $('#ex-count').textContent = monthEx.length ? `${monthEx.length}天` : '';
-}
-async function toggleExercise(dateStr, isToday) {
-  const existing = exercises.findIndex(e => e.date === dateStr);
-  if (existing >= 0) {
-    const ex = exercises[existing];
-    if (isToday && ex.type === 'done' && confirm('标记为休息日？')) {
-      ex.type = 'rest'; await saveToCloud('exercise', exercises); renderExercise(); toast('已标记为休息日');
-    } else {
-      exercises.splice(existing,1); await saveToCloud('exercise', exercises); renderExercise(); toast('已取消打卡');
-    }
-  } else {
-    exercises.push({ date: dateStr, type: 'done', id: Date.now() });
-    await saveToCloud('exercise', exercises); renderExercise(); toast('打卡成功！💪');
-  }
+  const todayEx = exercises.find(e => e.date===fmtDate(now) && e.type!=='rest');
+  const btn = $('#btn-ex-checkin');
+  btn.className = 'body-checkin-btn' + (todayEx ? ' checked' : '');
+  btn.querySelector('span').textContent = todayEx ? '✓' : '✓';
+  btn.innerHTML = todayEx ? '<span>✓</span> 今日已打卡' : '<span>✓</span> 今日运动打卡';
+
+  // Weight
+  renderWeightPanel();
+  switchPanel();
 }
 
-// ── 7. Weight ──
-function renderWeight() {
+function switchPanel() {
+  $('#panel-exercise').style.display = bodyTrack === 'exercise' ? '' : 'none';
+  $('#panel-weight').style.display = bodyTrack === 'weight' ? '' : 'none';
+  document.querySelectorAll('.body-tab').forEach(t => t.classList.toggle('active', t.dataset.track === bodyTrack));
+}
+
+function renderWeightPanel() {
   weights.sort((a,b) => a.date.localeCompare(b.date));
   if (weights.length) {
     const latest = weights[weights.length-1];
@@ -1164,52 +1236,55 @@ function renderWeight() {
       del.className = 'weight-delta ' + (delta > 0 ? 'up' : 'down');
     } else { $('#weight-delta').style.display = 'none'; }
   } else {
-    $('#weight-now').textContent = '--';
-    $('#weight-delta').style.display = 'none';
+    $('#weight-now').textContent = '--'; $('#weight-delta').style.display = 'none';
   }
-  const svg = $('#weight-chart svg');
+  const svg = $('#body-chart svg');
   if (weights.length < 2) {
-    svg.innerHTML = `<text x="200" y="65" text-anchor="middle" fill="#b5aca4" font-size="11">记录更多体重数据以显示趋势</text>`;
+    svg.innerHTML = `<text x="200" y="55" text-anchor="middle" fill="#b5aca4" font-size="11">记录体重以显示趋势</text>`;
   } else {
     const vals = weights.map(w => w.value);
     const min = Math.floor(Math.min(...vals) - 1);
     const max = Math.ceil(Math.max(...vals) + 1);
     const range = max - min || 1;
-    const w = 400, h = 120, pad = 10;
+    const w = 400, h = 100, pad = 10;
     const pts = vals.map((v,i) => {
-      const x = pad + (i / (vals.length-1)) * (w - pad*2);
-      const y = h - 20 - ((v - min) / range) * (h - 40);
+      const x = pad + (i/(vals.length-1))*(w-pad*2);
+      const y = h-16-((v-min)/range)*(h-32);
       return `${x},${y}`;
     });
-    const area = `M${pad},${h-20} L${pts.join(' L')} L${w-pad},${h-20} Z`;
+    const area = `M${pad},${h-16} L${pts.join(' L')} L${w-pad},${h-16} Z`;
     svg.innerHTML = `
-      <defs>
-        <linearGradient id="wg" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stop-color="#b8a99a" stop-opacity="0.25"/>
-          <stop offset="100%" stop-color="#b8a99a" stop-opacity="0.02"/>
-        </linearGradient>
-      </defs>
-      <path d="${area}" fill="url(#wg)"/>
-      <polyline points="${pts.join(' ')}" fill="none" stroke="#b8a99a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-      ${vals.map((v,i) => {
-        const x = pad + (i / (vals.length-1)) * (w - pad*2);
-        const y = h - 20 - ((v - min) / range) * (h - 40);
-        return `<circle cx="${x}" cy="${y}" r="3.5" fill="#fff" stroke="#b8a99a" stroke-width="1.5"/>`;
-      }).join('')}
-      <text x="${w-pad}" y="14" text-anchor="end" fill="#b5aca4" font-size="9">${max}</text>
-      <text x="${w-pad}" y="${h-22}" text-anchor="end" fill="#b5aca4" font-size="9">${min}</text>
-    `;
+      <defs><linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#7eb8a0" stop-opacity="0.2"/>
+        <stop offset="100%" stop-color="#7eb8a0" stop-opacity="0.02"/>
+      </linearGradient></defs>
+      <path d="${area}" fill="url(#bg)"/>
+      <polyline points="${pts.join(' ')}" fill="none" stroke="#7eb8a0" stroke-width="2" stroke-linecap="round"/>
+      ${vals.map((v,i)=>{const x=pad+(i/(vals.length-1))*(w-pad*2);const y=h-16-((v-min)/range)*(h-32);return`<circle cx="${x}" cy="${y}" r="3" fill="#fff" stroke="#7eb8a0" stroke-width="1.5"/>`;}).join('')}
+      <text x="${w-pad}" y="12" text-anchor="end" fill="#b5aca4" font-size="9">${max}</text>
+      <text x="${w-pad}" y="${h-18}" text-anchor="end" fill="#b5aca4" font-size="9">${min}</text>`;
   }
   const list = $('#weight-history');
-  const recent = [...weights].reverse().slice(0, 8);
+  const recent = [...weights].reverse().slice(0, 6);
   list.innerHTML = recent.map((w,i) => {
     const idx = weights.indexOf(w);
     const delta = idx > 0 ? (w.value - weights[idx-1].value).toFixed(1) : null;
-    const deltaHtml = delta ? `<span class="w-delta ${delta>0?'pos':'neg'}">${delta>0?'+':''}${delta}</span>` : '';
-    return `<div class="weight-entry" style="animation-delay:${i*.04}s">${deltaHtml}<span class="w-date">${w.date}</span><span class="w-val">${w.value} kg</span></div>`;
+    const dHtml = delta ? `<span class="br-delta ${delta>0?'pos':'neg'}">${delta>0?'+':''}${delta}</span>` : '';
+    return `<div class="body-recent-item" style="animation-delay:${i*.04}s">${dHtml}<span class="br-date">${w.date}</span><span class="br-val">${w.value} kg</span></div>`;
   }).join('');
   if (!recent.length) list.innerHTML = '<div class="empty-state">记录体重，看见变化</div>';
-  $('#weight-count').textContent = weights.length || '';
+}
+
+async function toggleExerciseToday() {
+  const date = fmtDate(new Date());
+  const idx = exercises.findIndex(e => e.date === date && e.type !== 'rest');
+  if (idx >= 0) {
+    exercises.splice(idx,1);
+    await saveToCloud('exercise', exercises); renderBody(); toast('已取消打卡');
+  } else {
+    exercises.push({ date, type: 'done', id: Date.now() });
+    await saveToCloud('exercise', exercises); renderBody(); toast('打卡成功！');
+  }
 }
 async function addWeight() {
   const val = parseFloat($('#weight-input').value);
@@ -1218,7 +1293,7 @@ async function addWeight() {
   const idx = weights.findIndex(w => w.date === date);
   if (idx >= 0) weights[idx].value = val;
   else weights.push({ date, value: val, id: Date.now() });
-  await saveToCloud('weight', weights); renderWeight();
+  await saveToCloud('weight', weights); renderBody();
   $('#weight-input').value = ''; toast('体重已记录');
 }
 
@@ -1253,7 +1328,7 @@ updateHeader();
   }
 
   renderTodos(); renderLife(); renderTravels();
-  renderMoods(); renderExercise(); renderWeight();
+  renderMoods(); renderBody();
 })();
 
 // ── Enter key handlers ──
@@ -1262,6 +1337,15 @@ $('#life-input').addEventListener('keydown', e => { if (e.key==='Enter') addLife
 $('#weight-input').addEventListener('keydown', e => { if (e.key==='Enter') addWeight(); });
 
 $('#sub-input').addEventListener('keydown', e => { if (e.key==='Enter') addSubToActive(); });
+$('#weight-input').addEventListener('keydown', e => { if (e.key==='Enter') addWeight(); });
+
+// Body tabs
+document.querySelectorAll('.body-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    bodyTrack = tab.dataset.track;
+    switchPanel();
+  });
+});
 
 activeDay = currentDay();
 document.querySelector('.todo-tab[data-day="'+activeDay+'"]')?.classList.add('active');
