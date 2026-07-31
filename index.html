@@ -1,0 +1,1056 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rowen's Dashboard</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  :root {
+    --bg: #f8f6f3;
+    --card: #ffffff;
+    --text: #3d3733;
+    --text-soft: #8a8078;
+    --text-light: #b5aca4;
+    --border: #ebe6e0;
+    --accent: #b8a99a;
+    --accent-soft: #e8d5c8;
+    --sage: #cfd8c8;
+    --sage-soft: #eaf0e4;
+    --blue: #c8d4e0;
+    --blue-soft: #e8eef5;
+    --warn: #e8c8c0;
+    --warn-soft: #f8ece8;
+    --radius: 16px;
+    --radius-sm: 10px;
+    --radius-xs: 6px;
+    --shadow: 0 1px 3px rgba(0,0,0,.04), 0 1px 2px rgba(0,0,0,.03);
+    --shadow-hover: 0 4px 16px rgba(0,0,0,.06), 0 2px 4px rgba(0,0,0,.03);
+    --transition: 0.25s cubic-bezier(.4,0,.2,1);
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── Layout ── */
+  .container { max-width: 1400px; margin: 0 auto; padding: 32px 28px 60px; }
+
+  /* ── Header ── */
+  .header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 36px; padding: 0 4px;
+  }
+  .header-left h1 { font-size: 28px; font-weight: 500; letter-spacing: -.3px; }
+  .header-left .subtitle { font-size: 14px; color: var(--text-soft); margin-top: 2px; }
+  .header-right {
+    display: flex; align-items: center; gap: 12px;
+    font-size: 13px; color: var(--text-soft);
+  }
+  .header-right .date { font-size: 32px; font-weight: 300; line-height: 1; }
+  .header-right .date-meta { text-align: right; }
+  .header-right .date-meta span { display: block; }
+
+  /* ── Grid ── */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
+
+  /* ── Card ── */
+  .card {
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: 24px;
+    box-shadow: var(--shadow);
+    transition: box-shadow var(--transition), transform var(--transition);
+    position: relative;
+    overflow: hidden;
+  }
+  .card:hover { box-shadow: var(--shadow-hover); transform: translateY(-1px); }
+  .card-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 18px;
+  }
+  .card-title {
+    font-size: 14px; font-weight: 600; color: var(--text);
+    letter-spacing: .3px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .card-title .dot {
+    width: 7px; height: 7px; border-radius: 50%; display: inline-block;
+  }
+  .card-count {
+    font-size: 12px; color: var(--text-light);
+  }
+
+  /* ── Input Row ── */
+  .input-row {
+    display: flex; gap: 8px; margin-bottom: 14px;
+  }
+  .input-row input {
+    flex: 1; border: 1px solid var(--border); border-radius: var(--radius-xs);
+    padding: 9px 12px; font-size: 13px; color: var(--text);
+    background: var(--bg); outline: none; transition: border var(--transition);
+  }
+  .input-row input:focus { border-color: var(--accent); }
+  .input-row input::placeholder { color: var(--text-light); }
+  .btn-add {
+    width: 34px; height: 34px; border: none; border-radius: var(--radius-xs);
+    background: var(--accent); color: #fff; font-size: 18px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: opacity var(--transition), transform var(--transition);
+    flex-shrink: 0;
+  }
+  .btn-add:hover { opacity: .85; transform: scale(1.04); }
+  .btn-add:active { transform: scale(.96); }
+
+  /* ── List Item ── */
+  .list-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 8px; border-radius: var(--radius-xs);
+    transition: background var(--transition);
+    animation: fadeSlideIn .35s ease both;
+  }
+  .list-item:hover { background: rgba(0,0,0,.015); }
+  @keyframes fadeSlideIn {
+    from { opacity: 0; transform: translateY(-6px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeSlideOut {
+    from { opacity: 1; transform: translateX(0); }
+    to   { opacity: 0; transform: translateX(12px); }
+  }
+  .list-item.removing { animation: fadeSlideOut .25s ease forwards; }
+
+  .list-item input[type="checkbox"] {
+    appearance: none; -webkit-appearance: none;
+    width: 18px; height: 18px; border: 1.5px solid var(--border);
+    border-radius: 50%; cursor: pointer; flex-shrink: 0;
+    transition: all var(--transition); position: relative;
+  }
+  .list-item input[type="checkbox"]:checked {
+    background: var(--accent); border-color: var(--accent);
+  }
+  .list-item input[type="checkbox"]:checked::after {
+    content: ''; position: absolute; top: 3px; left: 5px;
+    width: 5px; height: 8px; border: solid #fff;
+    border-width: 0 2px 2px 0; transform: rotate(45deg);
+  }
+  .list-item .item-text {
+    flex: 1; font-size: 13px; color: var(--text);
+    transition: color var(--transition), text-decoration var(--transition);
+  }
+  .list-item.done .item-text {
+    color: var(--text-light); text-decoration: line-through;
+    text-decoration-color: var(--text-light); text-decoration-thickness: .8px;
+  }
+  .list-item .item-time {
+    font-size: 11px; color: var(--text-light); flex-shrink: 0;
+  }
+  .list-item .btn-del {
+    width: 22px; height: 22px; border: none; background: none;
+    color: var(--text-light); cursor: pointer; font-size: 14px;
+    border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    opacity: 0; transition: all var(--transition); flex-shrink: 0;
+  }
+  .list-item:hover .btn-del { opacity: .6; }
+  .list-item .btn-del:hover { opacity: 1; color: #c88; background: var(--warn-soft); }
+
+  /* ── Travel Card ── */
+  .travel-item {
+    padding: 14px; border-radius: var(--radius-sm); margin-bottom: 10px;
+    border: 1px solid var(--border); transition: all var(--transition);
+    animation: fadeSlideIn .35s ease both; cursor: pointer;
+  }
+  .travel-item:hover { border-color: var(--accent); box-shadow: var(--shadow-hover); }
+  .travel-item .travel-date { font-size: 11px; color: var(--text-light); }
+  .travel-item .travel-location { font-size: 15px; font-weight: 600; margin: 2px 0; }
+  .travel-item .travel-note { font-size: 12px; color: var(--text-soft); line-height: 1.5; }
+  .travel-item .travel-img {
+    width: 100%; height: 120px; border-radius: var(--radius-sm);
+    background: var(--bg); margin-top: 8px; object-fit: cover;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--text-light); font-size: 12px; overflow: hidden;
+  }
+  .travel-item .travel-img img { width: 100%; height: 100%; object-fit: cover; }
+  .travel-form { display: none; margin-bottom: 14px; }
+  .travel-form.show { display: block; animation: fadeSlideIn .3s ease; }
+  .travel-form input, .travel-form textarea {
+    width: 100%; border: 1px solid var(--border); border-radius: var(--radius-xs);
+    padding: 8px 12px; font-size: 13px; margin-bottom: 8px;
+    background: var(--bg); outline: none; color: var(--text);
+    font-family: inherit; resize: none;
+  }
+  .travel-form input:focus, .travel-form textarea:focus { border-color: var(--accent); }
+  .travel-form textarea { height: 60px; }
+  .travel-form .form-row { display: flex; gap: 8px; }
+  .travel-form .form-row input { flex: 1; }
+
+  /* ── Mood ── */
+  .mood-grid {
+    display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 14px;
+  }
+  .mood-btn {
+    width: 44px; height: 44px; border: 1.5px solid transparent;
+    border-radius: 50%; font-size: 22px; cursor: pointer;
+    background: var(--bg); transition: all var(--transition);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .mood-btn:hover { transform: scale(1.1); }
+  .mood-btn.selected { border-color: var(--accent); transform: scale(1.12); background: #fff; }
+  .mood-note {
+    width: 100%; border: 1px solid var(--border); border-radius: var(--radius-xs);
+    padding: 9px 12px; font-size: 13px; background: var(--bg); outline: none;
+    color: var(--text); margin-bottom: 10px; font-family: inherit;
+  }
+  .mood-note:focus { border-color: var(--accent); }
+  .mood-history { max-height: 160px; overflow-y: auto; }
+  .mood-entry {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 0; border-bottom: 1px solid var(--border);
+    font-size: 13px; animation: fadeSlideIn .35s ease both;
+  }
+  .mood-entry:last-child { border-bottom: none; }
+  .mood-entry .m-emoji { font-size: 20px; }
+  .mood-entry .m-text { flex: 1; color: var(--text-soft); }
+  .mood-entry .m-date { font-size: 11px; color: var(--text-light); }
+
+  /* ── Exercise Calendar ── */
+  .ex-calendar {
+    display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px;
+    margin-bottom: 14px;
+  }
+  .ex-day-header {
+    font-size: 11px; color: var(--text-light); text-align: center;
+    padding: 4px 0;
+  }
+  .ex-day {
+    aspect-ratio: 1; border-radius: var(--radius-xs);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; cursor: pointer; border: 1px solid transparent;
+    transition: all var(--transition); position: relative; color: var(--text-soft);
+  }
+  .ex-day:hover { border-color: var(--accent); }
+  .ex-day.today { font-weight: 600; color: var(--accent); }
+  .ex-day.done {
+    background: var(--sage-soft); color: var(--text);
+  }
+  .ex-day.done::after {
+    content: ''; position: absolute; bottom: 3px; width: 4px; height: 4px;
+    border-radius: 50%; background: var(--sage);
+  }
+  .ex-day.rest {
+    background: var(--warn-soft); color: var(--text-soft);
+  }
+  .ex-stats { display: flex; gap: 20px; }
+  .ex-stat { text-align: center; }
+  .ex-stat-val { font-size: 24px; font-weight: 300; color: var(--text); }
+  .ex-stat-label { font-size: 11px; color: var(--text-light); }
+
+  /* ── Weight ── */
+  .weight-display {
+    display: flex; align-items: flex-end; gap: 10px; margin-bottom: 16px;
+  }
+  .weight-now { font-size: 42px; font-weight: 300; line-height: 1; }
+  .weight-unit { font-size: 14px; color: var(--text-light); margin-bottom: 4px; }
+  .weight-delta {
+    font-size: 13px; margin-bottom: 6px; padding: 2px 8px;
+    border-radius: 20px; font-weight: 500;
+  }
+  .weight-delta.up { color: #c88; background: var(--warn-soft); }
+  .weight-delta.down { color: #8a8; background: var(--sage-soft); }
+  .weight-input-row { display: flex; gap: 8px; margin-bottom: 14px; }
+  .weight-input-row input {
+    flex: 1; border: 1px solid var(--border); border-radius: var(--radius-xs);
+    padding: 9px 12px; font-size: 13px; background: var(--bg); outline: none;
+    color: var(--text);
+  }
+  .weight-input-row input:focus { border-color: var(--accent); }
+  .weight-chart {
+    width: 100%; height: 120px; border-radius: var(--radius-sm);
+    overflow: hidden;
+  }
+  .weight-chart svg { width: 100%; height: 100%; }
+  .weight-history { max-height: 120px; overflow-y: auto; margin-top: 10px; }
+  .weight-entry {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 6px 0; border-bottom: 1px solid var(--border);
+    font-size: 12px; animation: fadeSlideIn .35s ease both;
+  }
+  .weight-entry:last-child { border-bottom: none; }
+  .weight-entry .w-date { color: var(--text-light); }
+  .weight-entry .w-val { font-weight: 500; }
+  .weight-entry .w-delta { font-size: 11px; font-weight: 500; }
+  .weight-entry .w-delta.pos { color: #c88; }
+  .weight-entry .w-delta.neg { color: #8a8; }
+
+  /* ── Plan (今日计划) Time blocks ── */
+  .plan-blocks { display: flex; flex-direction: column; gap: 8px; }
+  .plan-block {
+    display: flex; gap: 12px; align-items: flex-start;
+    animation: fadeSlideIn .35s ease both;
+  }
+  .plan-block .pb-time {
+    width: 48px; font-size: 13px; font-weight: 500; color: var(--accent);
+    flex-shrink: 0; padding-top: 2px;
+  }
+  .plan-block .pb-content {
+    flex: 1; font-size: 13px; padding: 6px 10px; border-radius: var(--radius-xs);
+    background: var(--bg); display: flex; align-items: center; justify-content: space-between;
+    transition: background var(--transition);
+  }
+  .plan-block:hover .pb-content { background: var(--border); }
+
+  /* ── Life List ── */
+  .life-category { margin-bottom: 12px; }
+  .life-cat-label {
+    font-size: 11px; color: var(--text-light); text-transform: uppercase;
+    letter-spacing: .8px; margin-bottom: 4px;
+  }
+
+  /* ── Scrollbar ── */
+  ::-webkit-scrollbar { width: 3px; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+
+  /* ── Empty State ── */
+  .empty-state {
+    text-align: center; padding: 24px; color: var(--text-light); font-size: 13px;
+  }
+
+  /* ── Responsive ── */
+  @media (max-width: 1100px) { .grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 720px) {
+    .grid { grid-template-columns: 1fr; }
+    .container { padding: 20px 14px 40px; }
+  }
+
+  /* ── Toast ── */
+  .toast {
+    position: fixed; bottom: 32px; left: 50%; transform: translateX(-50%);
+    background: var(--text); color: #fff; padding: 10px 24px;
+    border-radius: 24px; font-size: 13px; opacity: 0;
+    transition: opacity .3s ease, transform .3s ease;
+    pointer-events: none; z-index: 100;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(-4px); }
+
+  /* ── Modal for travel image ── */
+  .modal-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,.4); z-index: 200;
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0; pointer-events: none; transition: opacity var(--transition);
+  }
+  .modal-overlay.show { opacity: 1; pointer-events: auto; }
+  .modal-content {
+    background: #fff; border-radius: var(--radius); padding: 20px;
+    max-width: 500px; width: 90%; box-shadow: 0 20px 60px rgba(0,0,0,.15);
+  }
+  .modal-content img { width: 100%; border-radius: var(--radius-sm); }
+  .modal-content h3 { margin-bottom: 4px; }
+  .modal-content p { color: var(--text-soft); font-size: 13px; margin: 4px 0; }
+
+  .btn-sm {
+    border: none; background: none; color: var(--text-soft); cursor: pointer;
+    font-size: 12px; padding: 4px 10px; border-radius: var(--radius-xs);
+    transition: all var(--transition);
+  }
+  .btn-sm:hover { background: var(--bg); color: var(--text); }
+
+  /* ── Sync Status ── */
+  .sync-status {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 11px; color: var(--text-light);
+    padding: 3px 10px; border-radius: 20px; letter-spacing: .4px;
+  }
+  .sync-status.online { color: #7a9; }
+  .sync-status.offline { color: #c88; }
+  .sync-status .sync-dot {
+    width: 6px; height: 6px; border-radius: 50%; display: inline-block;
+  }
+  .sync-status.online .sync-dot { background: #8b8; }
+  .sync-status.offline .sync-dot { background: #c88; animation: pulse 1.5s ease infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+  /* ── Loading ── */
+  .card-loading {
+    display: flex; align-items: center; justify-content: center;
+    padding: 30px; color: var(--text-light); font-size: 13px;
+  }
+  .card-loading::before {
+    content: ''; display: inline-block; width: 14px; height: 14px;
+    border: 1.5px solid var(--border); border-top-color: var(--accent);
+    border-radius: 50%; animation: spin .6s linear infinite; margin-right: 8px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <!-- Header -->
+  <div class="header">
+    <div class="header-left">
+      <h1>✦ Rowen's Space</h1>
+      <div class="subtitle">宁静有序，日日如歌 · <span class="sync-status offline" id="sync-status"><span class="sync-dot"></span> 未连接</span></div>
+    </div>
+    <div class="header-right">
+      <div class="date-meta">
+        <span id="header-weekday"></span>
+        <span id="header-date"></span>
+      </div>
+      <div class="date" id="header-day"></div>
+    </div>
+  </div>
+
+  <!-- Grid -->
+  <div class="grid">
+    <!-- 1. 今日计划 -->
+    <div class="card" id="card-plan">
+      <div class="card-header">
+        <div class="card-title"><span class="dot" style="background:var(--accent)"></span>今日计划</div>
+        <span class="card-count" id="plan-count">0</span>
+      </div>
+      <div class="input-row">
+        <input type="time" id="plan-time" value="09:00" style="width:90px;flex:none;">
+        <input type="text" id="plan-input" placeholder="添加计划..." maxlength="40">
+        <button class="btn-add" onclick="addPlan()">+</button>
+      </div>
+      <div class="plan-blocks" id="plan-list"></div>
+    </div>
+
+    <!-- 2. 工作待办 -->
+    <div class="card" id="card-work">
+      <div class="card-header">
+        <div class="card-title"><span class="dot" style="background:#c8b4a0"></span>工作待办</div>
+        <span class="card-count" id="work-count"></span>
+      </div>
+      <div class="input-row">
+        <input type="text" id="work-input" placeholder="添加工作任务..." maxlength="50">
+        <button class="btn-add" onclick="addWork()">+</button>
+      </div>
+      <div id="work-list"></div>
+    </div>
+
+    <!-- 3. 生活清单 -->
+    <div class="card" id="card-life">
+      <div class="card-header">
+        <div class="card-title"><span class="dot" style="background:#c0ccb8"></span>生活清单</div>
+        <span class="card-count" id="life-count"></span>
+      </div>
+      <div class="life-category">
+        <div class="life-cat-label">日常</div>
+        <div id="life-daily"></div>
+      </div>
+      <div class="life-category">
+        <div class="life-cat-label">采购</div>
+        <div id="life-shopping"></div>
+      </div>
+      <div class="life-category">
+        <div class="life-cat-label">其他</div>
+        <div id="life-other"></div>
+      </div>
+      <div class="input-row" style="margin-top:10px;">
+        <select id="life-cat" style="width:70px;flex:none;border:1px solid var(--border);border-radius:var(--radius-xs);padding:9px 8px;font-size:12px;background:var(--bg);color:var(--text);outline:none;">
+          <option value="daily">日常</option>
+          <option value="shopping">采购</option>
+          <option value="other">其他</option>
+        </select>
+        <input type="text" id="life-input" placeholder="生活事项..." maxlength="40">
+        <button class="btn-add" onclick="addLife()">+</button>
+      </div>
+    </div>
+
+    <!-- 4. 旅游日志 -->
+    <div class="card" id="card-travel">
+      <div class="card-header">
+        <div class="card-title"><span class="dot" style="background:#c8d0df"></span>旅游日志</div>
+        <button class="btn-sm" id="btn-toggle-travel" onclick="toggleTravelForm()">+ 记录</button>
+      </div>
+      <div class="travel-form" id="travel-form">
+        <input type="text" id="travel-location" placeholder="目的地" maxlength="20">
+        <div class="form-row">
+          <input type="date" id="travel-date" style="flex:1">
+          <input type="text" id="travel-img-url" placeholder="图片URL（可选）" style="flex:1.5">
+        </div>
+        <textarea id="travel-note" placeholder="简单记一笔..." maxlength="120"></textarea>
+        <button class="btn-add" style="width:auto;padding:0 16px;margin-top:4px;" onclick="addTravel()">保存</button>
+        <button class="btn-sm" style="margin-left:8px;" onclick="toggleTravelForm()">取消</button>
+      </div>
+      <div id="travel-list"></div>
+    </div>
+
+    <!-- 5. 心情记录 -->
+    <div class="card" id="card-mood">
+      <div class="card-header">
+        <div class="card-title"><span class="dot" style="background:#e0c8c8"></span>心情记录</div>
+        <span class="card-count" id="mood-count">0</span>
+      </div>
+      <div class="mood-grid" id="mood-grid">
+        <button class="mood-btn" data-mood="😊">😊</button>
+        <button class="mood-btn" data-mood="😌">😌</button>
+        <button class="mood-btn" data-mood="😐">😐</button>
+        <button class="mood-btn" data-mood="😔">😔</button>
+        <button class="mood-btn" data-mood="😤">😤</button>
+        <button class="mood-btn" data-mood="🥰">🥰</button>
+        <button class="mood-btn" data-mood="😴">😴</button>
+      </div>
+      <input type="text" class="mood-note" id="mood-note" placeholder="此刻想说的话..." maxlength="60">
+      <button class="btn-add" style="width:auto;padding:0 20px;" onclick="addMood()">记录心情</button>
+      <div class="mood-history" id="mood-history"></div>
+    </div>
+
+    <!-- 6. 运动打卡 -->
+    <div class="card" id="card-exercise">
+      <div class="card-header">
+        <div class="card-title"><span class="dot" style="background:var(--sage)"></span>运动打卡</div>
+        <span class="card-count" id="ex-count">0</span>
+      </div>
+      <div class="ex-calendar" id="ex-calendar">
+        <div class="ex-day-header">日</div><div class="ex-day-header">一</div>
+        <div class="ex-day-header">二</div><div class="ex-day-header">三</div>
+        <div class="ex-day-header">四</div><div class="ex-day-header">五</div>
+        <div class="ex-day-header">六</div>
+      </div>
+      <div class="ex-stats">
+        <div class="ex-stat">
+          <div class="ex-stat-val" id="ex-month">0</div>
+          <div class="ex-stat-label">本月打卡</div>
+        </div>
+        <div class="ex-stat">
+          <div class="ex-stat-val" id="ex-streak">0</div>
+          <div class="ex-stat-label">连续天数</div>
+        </div>
+        <div class="ex-stat">
+          <div class="ex-stat-val" id="ex-total">0</div>
+          <div class="ex-stat-label">总计</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 7. 体重管理 -->
+    <div class="card" id="card-weight">
+      <div class="card-header">
+        <div class="card-title"><span class="dot" style="background:#d8c8c0"></span>体重管理</div>
+        <span class="card-count" id="weight-count">0</span>
+      </div>
+      <div class="weight-display">
+        <div class="weight-now" id="weight-now">--</div>
+        <div class="weight-unit">kg</div>
+        <div class="weight-delta" id="weight-delta" style="display:none"></div>
+      </div>
+      <div class="weight-input-row">
+        <input type="number" id="weight-input" placeholder="今日体重 (kg)" step="0.1" min="30" max="200">
+        <button class="btn-add" onclick="addWeight()">+</button>
+      </div>
+      <div class="weight-chart" id="weight-chart">
+        <svg viewBox="0 0 400 120" preserveAspectRatio="none"></svg>
+      </div>
+      <div class="weight-history" id="weight-history"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<!-- Travel detail modal -->
+<div class="modal-overlay" id="modal-overlay" onclick="closeModal()">
+  <div class="modal-content" onclick="event.stopPropagation()">
+    <img id="modal-img" src="" alt="">
+    <h3 id="modal-location"></h3>
+    <p id="modal-note"></p>
+    <p id="modal-date" style="font-size:11px;color:var(--text-light)"></p>
+    <button class="btn-add" style="width:auto;padding:0 16px;margin-top:8px;" onclick="closeModal()">关闭</button>
+  </div>
+</div>
+
+<script>
+// ── Supabase Config ──
+const SUPABASE_URL = 'https://ubqmtpvbkrdgmijfppir.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_72YhJ6ANGV_sxAVLkdEuiw_zs58Kd89';
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// ── Utils ──
+const $ = s => document.querySelector(s);
+const $$ = s => document.querySelectorAll(s);
+
+function toast(msg) {
+  const t = $('#toast');
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(t._t); t._t = setTimeout(() => t.classList.remove('show'), 1800);
+}
+
+function fmtDate(d) {
+  const y = d.getFullYear(), m = d.getMonth()+1, day = d.getDate();
+  return `${y}-${String(m).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+}
+
+function fmtTime(d) {
+  return `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+}
+
+function escHtml(s) {
+  const d = document.createElement('div');
+  d.textContent = s; return d.innerHTML;
+}
+
+// ── Cloud Sync Engine ──
+let cloudReady = false;
+
+function setSyncStatus(online) {
+  cloudReady = online;
+  const el = $('#sync-status');
+  el.className = 'sync-status ' + (online ? 'online' : 'offline');
+  el.innerHTML = online
+    ? '<span class="sync-dot"></span> 已同步'
+    : '<span class="sync-dot"></span> 离线缓存中';
+}
+
+async function loadFromCloud(module) {
+  if (!cloudReady) return loadLocal(module);
+  try {
+    const { data, error } = await supabase
+      .from('dashboard_data').select('data').eq('module', module).maybeSingle();
+    if (error) throw error;
+    if (data) {
+      saveLocal(module, data.data);
+      return Array.isArray(data.data) ? data.data : [];
+    }
+    return [];
+  } catch {
+    setSyncStatus(false);
+    return loadLocal(module);
+  }
+}
+
+async function saveToCloud(module, arr) {
+  saveLocal(module, arr);
+  if (!cloudReady) return;
+  try {
+    const { error } = await supabase
+      .from('dashboard_data').upsert({ module, data: arr, updated_at: new Date() }, { onConflict: 'module' });
+    if (error) throw error;
+    setSyncStatus(true);
+  } catch {
+    setSyncStatus(false);
+  }
+}
+
+// ── Local fallback ──
+const LS_PREFIX = 'db_';
+function saveLocal(k, v) { try { localStorage.setItem(LS_PREFIX + k, JSON.stringify(v)); } catch {} }
+function loadLocal(k) { try { return JSON.parse(localStorage.getItem(LS_PREFIX + k) || '[]'); } catch { return []; } }
+
+// ── Real-time Subscription ──
+function setupRealtime() {
+  supabase
+    .channel('dashboard-sync')
+    .on('postgres_changes',
+      { event: '*', schema: 'public', table: 'dashboard_data' },
+      (payload) => {
+        if (!payload.new) return;
+        const m = payload.new.module;
+        const d = payload.new.data;
+        if (!Array.isArray(d)) return;
+        switch (m) {
+          case 'plan': plans = d; renderPlans(); break;
+          case 'work': works = d; renderWorks(); break;
+          case 'life': lifeItems = d; renderLife(); break;
+          case 'travel': travels = d; renderTravels(); break;
+          case 'mood': moods = d; renderMoods(); break;
+          case 'exercise': exercises = d; renderExercise(); break;
+          case 'weight': weights = d; renderWeight(); break;
+        }
+        toast('📡 数据已同步');
+      }
+    )
+    .subscribe();
+}
+
+// ── Cloud Bootstrap & Migration ──
+async function bootstrap() {
+  try {
+    const { data, error } = await supabase.from('dashboard_data').select('module,data');
+    if (!error && data && data.length > 0) {
+      setSyncStatus(true);
+      setupRealtime();
+      // Load from cloud
+      const seed = {};
+      data.forEach(r => { if (Array.isArray(r.data)) seed[r.module] = r.data; });
+      return seed;
+    }
+    // No cloud data yet — migrate localStorage to cloud
+    setSyncStatus(true);
+    setupRealtime();
+    const modules = ['plan','work','life','travel','mood','exercise','weight'];
+    const seed = {};
+    for (const m of modules) {
+      const local = loadLocal(m);
+      seed[m] = local;
+      if (local.length > 0) {
+        await supabase.from('dashboard_data').upsert({ module: m, data: local, updated_at: new Date() }, { onConflict: 'module' });
+      }
+    }
+    toast('📡 本地数据已同步至云端');
+    return seed;
+  } catch {
+    setSyncStatus(false);
+    toast('⚠️ 云端连接失败，使用本地缓存');
+    return null;
+  }
+}
+
+// ── Header Date ──
+function updateHeader() {
+  const now = new Date();
+  const weekdays = ['日','一','二','三','四','五','六'];
+  $('#header-day').textContent = now.getDate();
+  $('#header-weekday').textContent = '星期' + weekdays[now.getDay()];
+  $('#header-date').textContent = `${now.getFullYear()}年${now.getMonth()+1}月`;
+}
+
+// ── Data ──
+let plans = [], works = [], lifeItems = [], travels = [], moods = [], exercises = [], weights = [];
+let selectedMood = '';
+
+// ── 1. Today's Plan ──
+function renderPlans() {
+  const list = $('#plan-list');
+  plans.sort((a,b) => a.time.localeCompare(b.time));
+  list.innerHTML = plans.map((p,i) => `
+    <div class="plan-block" style="animation-delay:${i*.04}s">
+      <div class="pb-time">${p.time}</div>
+      <div class="pb-content">
+        <span>${escHtml(p.text)}</span>
+        <button class="btn-del" style="opacity:.5" onclick="removePlan(${i})">×</button>
+      </div>
+    </div>
+  `).join('');
+  if (!plans.length) list.innerHTML = '<div class="empty-state">今天还没有计划，开始安排吧 ✨</div>';
+  $('#plan-count').textContent = `${plans.length}项`;
+}
+async function addPlan() {
+  const time = $('#plan-time').value;
+  const text = $('#plan-input').value.trim();
+  if (!text) return toast('请输入计划内容');
+  if (plans.some(p => p.time === time)) return toast('该时间段已有计划');
+  plans.push({ time, text, id: Date.now() });
+  await saveToCloud('plan', plans); renderPlans();
+  $('#plan-input').value = ''; toast('计划已添加');
+}
+async function removePlan(i) {
+  const el = $('#plan-list').children[i];
+  if (el) { el.style.animation = 'fadeSlideOut .25s ease forwards'; }
+  setTimeout(async () => { plans.splice(i,1); await saveToCloud('plan', plans); renderPlans(); }, 250);
+}
+
+// ── 2. Work Todos ──
+function renderWorks() {
+  const list = $('#work-list');
+  const done = works.filter(w=>w.done).length;
+  list.innerHTML = works.map((w,i) => `
+    <div class="list-item ${w.done?'done':''}" style="animation-delay:${i*.04}s">
+      <input type="checkbox" ${w.done?'checked':''} onchange="toggleWork(${i})">
+      <span class="item-text">${escHtml(w.text)}</span>
+      <button class="btn-del" onclick="event.stopPropagation();removeWork(${i})">×</button>
+    </div>
+  `).join('');
+  if (!works.length) list.innerHTML = '<div class="empty-state">暂无待办，清爽的开始</div>';
+  $('#work-count').textContent = works.length ? `${done}/${works.length}` : '';
+}
+async function addWork() {
+  const text = $('#work-input').value.trim();
+  if (!text) return toast('请输入任务内容');
+  works.unshift({ text, done: false, id: Date.now() });
+  await saveToCloud('work', works); renderWorks();
+  $('#work-input').value = ''; toast('任务已添加');
+}
+async function toggleWork(i) { works[i].done = !works[i].done; await saveToCloud('work', works); renderWorks(); }
+async function removeWork(i) {
+  const el = $('#work-list').children[i];
+  if (el) el.classList.add('removing');
+  setTimeout(async () => { works.splice(i,1); await saveToCloud('work', works); renderWorks(); }, 250);
+}
+
+// ── 3. Life List ──
+function renderLife() {
+  const cats = { daily: [], shopping: [], other: [] };
+  lifeItems.forEach(l => { if (cats[l.cat]) cats[l.cat].push(l); });
+  ['daily','shopping','other'].forEach(cat => {
+    const el = $(`#life-${cat}`);
+    const items = cats[cat];
+    el.innerHTML = items.map((l,i) => {
+      const idx = lifeItems.indexOf(l);
+      return `<div class="list-item ${l.done?'done':''}" style="animation-delay:${i*.04}s">
+        <input type="checkbox" ${l.done?'checked':''} onchange="toggleLife(${idx})">
+        <span class="item-text">${escHtml(l.text)}</span>
+        <button class="btn-del" onclick="event.stopPropagation();removeLife(${idx})">×</button>
+      </div>`;
+    }).join('');
+    if (!items.length) el.innerHTML = '';
+  });
+  const undone = lifeItems.filter(l=>!l.done).length;
+  $('#life-count').textContent = undone ? `${undone}项待办` : '';
+}
+async function addLife() {
+  const text = $('#life-input').value.trim();
+  const cat = $('#life-cat').value;
+  if (!text) return toast('请输入内容');
+  lifeItems.unshift({ text, cat, done: false, id: Date.now() });
+  await saveToCloud('life', lifeItems); renderLife();
+  $('#life-input').value = ''; toast('已添加');
+}
+async function toggleLife(i) { lifeItems[i].done = !lifeItems[i].done; await saveToCloud('life', lifeItems); renderLife(); }
+async function removeLife(i) { lifeItems.splice(i,1); await saveToCloud('life', lifeItems); renderLife(); }
+
+// ── 4. Travel Log ──
+function renderTravels() {
+  const list = $('#travel-list');
+  list.innerHTML = travels.map((t,i) => `
+    <div class="travel-item" style="animation-delay:${i*.06}s" onclick="openTravelDetail(${i})">
+      <div class="travel-date">${t.date}</div>
+      <div class="travel-location">${escHtml(t.location)}</div>
+      ${t.note ? `<div class="travel-note">${escHtml(t.note)}</div>` : ''}
+      ${t.img ? `<div class="travel-img"><img src="${escHtml(t.img)}" alt="" onerror="this.parentElement.style.display='none'" loading="lazy"></div>` : ''}
+    </div>
+  `).join('');
+  if (!travels.length) list.innerHTML = '<div class="empty-state">还没有旅行记录，世界在等你 🌍</div>';
+}
+function toggleTravelForm() { $('#travel-form').classList.toggle('show'); }
+async function addTravel() {
+  const location = $('#travel-location').value.trim();
+  const date = $('#travel-date').value || fmtDate(new Date());
+  const note = $('#travel-note').value.trim();
+  const img = $('#travel-img-url').value.trim();
+  if (!location) return toast('请输入目的地');
+  travels.unshift({ location, date, note, img, id: Date.now() });
+  await saveToCloud('travel', travels); renderTravels(); toggleTravelForm();
+  $('#travel-location').value = $('#travel-note').value = $('#travel-img-url').value = '';
+  toast('旅行记录已保存');
+}
+function openTravelDetail(i) {
+  const t = travels[i];
+  $('#modal-location').textContent = t.location;
+  $('#modal-note').textContent = t.note || '';
+  $('#modal-date').textContent = t.date;
+  $('#modal-img').src = t.img || '';
+  $('#modal-img').style.display = t.img ? '' : 'none';
+  $('#modal-overlay').classList.add('show');
+}
+function closeModal() { $('#modal-overlay').classList.remove('show'); }
+
+// ── 5. Mood ──
+document.querySelectorAll('.mood-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+    selectedMood = btn.dataset.mood;
+  });
+});
+function renderMoods() {
+  const list = $('#mood-history');
+  const recent = moods.slice(0, 10);
+  list.innerHTML = recent.map((m,i) => `
+    <div class="mood-entry" style="animation-delay:${i*.04}s">
+      <span class="m-emoji">${m.mood}</span>
+      <span class="m-text">${escHtml(m.note || '...')}</span>
+      <span class="m-date">${m.date}</span>
+    </div>
+  `).join('');
+  if (!recent.length) list.innerHTML = '<div class="empty-state">记录今天的心情吧 💭</div>';
+  $('#mood-count').textContent = moods.length || '';
+}
+async function addMood() {
+  if (!selectedMood) return toast('请先选择一个心情');
+  const note = $('#mood-note').value.trim();
+  const now = new Date();
+  moods.unshift({ mood: selectedMood, note, date: fmtDate(now) + ' ' + fmtTime(now), id: Date.now() });
+  await saveToCloud('mood', moods); renderMoods();
+  $('#mood-note').value = ''; selectedMood = '';
+  document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('selected'));
+  toast('心情已记录');
+}
+
+// ── 6. Exercise ──
+function getDaysInMonth(y, m) { return new Date(y, m+1, 0).getDate(); }
+function getFirstDayOfMonth(y, m) { return new Date(y, m, 1).getDay(); }
+function renderExercise() {
+  const now = new Date();
+  const y = now.getFullYear(), m = now.getMonth(), today = now.getDate();
+  const daysInMonth = getDaysInMonth(y, m);
+  const firstDay = getFirstDayOfMonth(y, m);
+  const cal = $('#ex-calendar');
+  cal.querySelectorAll('.ex-day').forEach(d => d.remove());
+  for (let i = 0; i < firstDay; i++) {
+    const empty = document.createElement('div');
+    empty.className = 'ex-day'; cal.appendChild(empty);
+  }
+  for (let d = 1; d <= daysInMonth; d++) {
+    const dayEl = document.createElement('div');
+    dayEl.className = 'ex-day';
+    dayEl.textContent = d;
+    const dateStr = fmtDate(new Date(y, m, d));
+    const ex = exercises.find(e => e.date === dateStr);
+    if (d === today) dayEl.classList.add('today');
+    if (ex) dayEl.classList.add(ex.type === 'rest' ? 'rest' : 'done');
+    dayEl.title = dateStr;
+    dayEl.addEventListener('click', () => toggleExercise(dateStr, d === today));
+    cal.appendChild(dayEl);
+  }
+  const monthStr = `${y}-${String(m+1).padStart(2,'0')}`;
+  const monthEx = exercises.filter(e => e.date.startsWith(monthStr) && e.type !== 'rest');
+  $('#ex-month').textContent = monthEx.length;
+  $('#ex-total').textContent = exercises.filter(e => e.type !== 'rest').length;
+  let streak = 0;
+  let check = new Date(y, m, today);
+  while (true) {
+    const ds = fmtDate(check);
+    const found = exercises.find(e => e.date === ds && e.type !== 'rest');
+    if (found) { streak++; check.setDate(check.getDate()-1); }
+    else break;
+  }
+  $('#ex-streak').textContent = streak;
+  $('#ex-count').textContent = monthEx.length ? `${monthEx.length}天` : '';
+}
+async function toggleExercise(dateStr, isToday) {
+  const existing = exercises.findIndex(e => e.date === dateStr);
+  if (existing >= 0) {
+    const ex = exercises[existing];
+    if (isToday && ex.type === 'done' && confirm('标记为休息日？')) {
+      ex.type = 'rest'; await saveToCloud('exercise', exercises); renderExercise(); toast('已标记为休息日');
+    } else {
+      exercises.splice(existing,1); await saveToCloud('exercise', exercises); renderExercise(); toast('已取消打卡');
+    }
+  } else {
+    exercises.push({ date: dateStr, type: 'done', id: Date.now() });
+    await saveToCloud('exercise', exercises); renderExercise(); toast('打卡成功！💪');
+  }
+}
+
+// ── 7. Weight ──
+function renderWeight() {
+  weights.sort((a,b) => a.date.localeCompare(b.date));
+  if (weights.length) {
+    const latest = weights[weights.length-1];
+    $('#weight-now').textContent = latest.value;
+    if (weights.length >= 2) {
+      const prev = weights[weights.length-2];
+      const delta = (latest.value - prev.value).toFixed(1);
+      const del = $('#weight-delta');
+      del.style.display = ''; del.textContent = (delta > 0 ? '+' : '') + delta;
+      del.className = 'weight-delta ' + (delta > 0 ? 'up' : 'down');
+    } else { $('#weight-delta').style.display = 'none'; }
+  } else {
+    $('#weight-now').textContent = '--';
+    $('#weight-delta').style.display = 'none';
+  }
+  const svg = $('#weight-chart svg');
+  if (weights.length < 2) {
+    svg.innerHTML = `<text x="200" y="65" text-anchor="middle" fill="#b5aca4" font-size="11">记录更多体重数据以显示趋势</text>`;
+  } else {
+    const vals = weights.map(w => w.value);
+    const min = Math.floor(Math.min(...vals) - 1);
+    const max = Math.ceil(Math.max(...vals) + 1);
+    const range = max - min || 1;
+    const w = 400, h = 120, pad = 10;
+    const pts = vals.map((v,i) => {
+      const x = pad + (i / (vals.length-1)) * (w - pad*2);
+      const y = h - 20 - ((v - min) / range) * (h - 40);
+      return `${x},${y}`;
+    });
+    const area = `M${pad},${h-20} L${pts.join(' L')} L${w-pad},${h-20} Z`;
+    svg.innerHTML = `
+      <defs>
+        <linearGradient id="wg" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#b8a99a" stop-opacity="0.25"/>
+          <stop offset="100%" stop-color="#b8a99a" stop-opacity="0.02"/>
+        </linearGradient>
+      </defs>
+      <path d="${area}" fill="url(#wg)"/>
+      <polyline points="${pts.join(' ')}" fill="none" stroke="#b8a99a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      ${vals.map((v,i) => {
+        const x = pad + (i / (vals.length-1)) * (w - pad*2);
+        const y = h - 20 - ((v - min) / range) * (h - 40);
+        return `<circle cx="${x}" cy="${y}" r="3.5" fill="#fff" stroke="#b8a99a" stroke-width="1.5"/>`;
+      }).join('')}
+      <text x="${w-pad}" y="14" text-anchor="end" fill="#b5aca4" font-size="9">${max}</text>
+      <text x="${w-pad}" y="${h-22}" text-anchor="end" fill="#b5aca4" font-size="9">${min}</text>
+    `;
+  }
+  const list = $('#weight-history');
+  const recent = [...weights].reverse().slice(0, 8);
+  list.innerHTML = recent.map((w,i) => {
+    const idx = weights.indexOf(w);
+    const delta = idx > 0 ? (w.value - weights[idx-1].value).toFixed(1) : null;
+    const deltaHtml = delta ? `<span class="w-delta ${delta>0?'pos':'neg'}">${delta>0?'+':''}${delta}</span>` : '';
+    return `<div class="weight-entry" style="animation-delay:${i*.04}s">${deltaHtml}<span class="w-date">${w.date}</span><span class="w-val">${w.value} kg</span></div>`;
+  }).join('');
+  if (!recent.length) list.innerHTML = '<div class="empty-state">记录体重，看见变化</div>';
+  $('#weight-count').textContent = weights.length || '';
+}
+async function addWeight() {
+  const val = parseFloat($('#weight-input').value);
+  if (isNaN(val) || val < 30 || val > 200) return toast('请输入有效体重');
+  const date = fmtDate(new Date());
+  const idx = weights.findIndex(w => w.date === date);
+  if (idx >= 0) weights[idx].value = val;
+  else weights.push({ date, value: val, id: Date.now() });
+  await saveToCloud('weight', weights); renderWeight();
+  $('#weight-input').value = ''; toast('体重已记录');
+}
+
+// ── Init ──
+updateHeader();
+
+// Show loading state
+['plan-list','work-list','life-daily','life-shopping','life-other','travel-list','mood-history','weight-history'].forEach(id => {
+  const el = $('#' + id);
+  if (el) el.innerHTML = '<div class="card-loading">加载中…</div>';
+});
+
+// Async bootstrap
+(async function init() {
+  const seed = await bootstrap();
+
+  if (seed) {
+    plans = seed.plan || [];
+    works = seed.work || [];
+    lifeItems = seed.life || [];
+    travels = seed.travel || [];
+    moods = seed.mood || [];
+    exercises = seed.exercise || [];
+    weights = seed.weight || [];
+  } else {
+    // Fallback to localStorage
+    plans = loadLocal('plan');
+    works = loadLocal('work');
+    lifeItems = loadLocal('life');
+    travels = loadLocal('travel');
+    moods = loadLocal('mood');
+    exercises = loadLocal('exercise');
+    weights = loadLocal('weight');
+  }
+
+  renderPlans(); renderWorks(); renderLife(); renderTravels();
+  renderMoods(); renderExercise(); renderWeight();
+})();
+
+// ── Enter key handlers ──
+$('#plan-input').addEventListener('keydown', e => { if (e.key==='Enter') addPlan(); });
+$('#work-input').addEventListener('keydown', e => { if (e.key==='Enter') addWork(); });
+$('#life-input').addEventListener('keydown', e => { if (e.key==='Enter') addLife(); });
+$('#weight-input').addEventListener('keydown', e => { if (e.key==='Enter') addWeight(); });
+
+console.log('🌿 Rowen\'s Space — Supabase 已连接');
+</script>
+</body>
+</html>
