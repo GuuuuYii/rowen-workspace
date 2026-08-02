@@ -573,6 +573,8 @@ async function addWeight(){const v=parseFloat($('#weight-input')?.value);if(isNa
 
 // ── Schedule (inside Todo) ──
 let todoViewMode='detail';
+function lunarMonth(d){const lm=['正','二','三','四','五','六','七','八','九','十','冬','腊'];return lm[d.getMonth()]+'月';}
+function getEventsOnDay(ds){const evts=[];todos.filter(t=>t.date===ds).forEach(t=>evts.push({type:'todo',text:t.text,done:t.done,tag:'待办'}));travels.filter(t=>t.date===ds).forEach(t=>evts.push({type:'travel',text:t.location,tag:'旅行'}));moods.filter(m=>m.date&&m.date.startsWith(ds)).forEach(m=>evts.push({type:'mood',text:(m.mood||'')+' '+(m.note||''),tag:'心情'}));exercises.filter(e=>e.date===ds&&e.type!=='rest').forEach(e=>evts.push({type:'exercise',text:'运动打卡',tag:'运动'}));weights.filter(w=>w.date===ds).forEach(w=>evts.push({type:'weight',text:w.value+'kg',tag:'体重'}));return evts;}
 function setTodoView(m){todoViewMode=m;renderTodo();}
 function renderScheduleDetail(){const n=new Date(),ts=fmtDate(n);const tod=todos.filter(t=>t.date===ts).sort((a,b)=>a.order-b.order);const trv=travels.filter(t=>t.date===ts);const md=moods.filter(m=>m.date&&m.date.startsWith(ts));const ex=exercises.find(e=>e.date===ts&&e.type!=='rest');const wt=weights.find(w=>w.date===ts);
 const wd=['日','一','二','三','四','五','六'][n.getDay()];
