@@ -301,6 +301,25 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft
 .cal-event.exercise { background:#8cbf8c; }
 .cal-event.weight { background:#9aa0c4; }
 .cal-more { font-size:9px; color:var(--text-light); padding:1px 4px; }
+
+/* ── Calendar List View ── */
+.cal-list { display:flex; flex-direction:column; gap:1px; }
+.cal-list-day { display:flex; align-items:flex-start; gap:12px; padding:8px 6px; border-bottom:1px solid var(--border); transition:background var(--transition); }
+.cal-list-day:hover { background:rgba(0,0,0,.015); }
+.cal-list-date { flex-shrink:0; width:48px; text-align:center; padding-top:2px; }
+.cal-list-date .ld-num { font-size:18px; font-weight:500; line-height:1.1; color:var(--text); }
+.cal-list-date .ld-weekday { font-size:10px; color:var(--text-light); margin-top:1px; }
+.cal-list-day.today .ld-num { color:var(--accent); font-weight:600; }
+.cal-list-day.selected { background:var(--accent-bg); border-radius:6px; }
+.cal-list-day.other-month { opacity:.4; }
+.cal-list-events { flex:1; display:flex; flex-direction:column; gap:3px; padding-top:1px; }
+.cal-list-event { font-size:11px; padding:3px 8px; border-radius:10px; color:#fff; line-height:1.4; display:inline-block; align-self:flex-start; max-width:100%; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.cal-list-event.todo { background:#7eb8a0; }
+.cal-list-event.travel { background:#d4a574; }
+.cal-list-event.mood { background:#d4a0c0; }
+.cal-list-event.exercise { background:#8cbf8c; }
+.cal-list-event.weight { background:#9aa0c4; }
+.cal-list-empty { font-size:11px; color:var(--text-light); padding:2px 0; }
 .cal-detail { background:#fff; border:1px solid var(--border); border-radius:var(--radius); padding:18px; margin-bottom:16px; }
 .cal-detail-title { font-size:16px; font-weight:600; margin-bottom:4px; }
 .cal-detail-date { font-size:11px; color:var(--text-light); margin-bottom:12px; }
@@ -585,15 +604,16 @@ if(!sections.length)h+=`<div class="empty-state" style="padding:20px">今天还�
 else{sections.forEach(s=>{h+=`<div style="margin-bottom:10px"><div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text-soft);margin-bottom:6px"><span>${s.title}</span><span>${s.count}</span></div>`;h+=s.items.map(it=>`<div style="display:flex;gap:8px;padding:6px 0;font-size:13px;align-items:center"><span class="cal-tag" style="background:${tagColor(it.tag)}">${it.tag==='todo'?'待办':it.tag==='travel'?'旅行':it.tag==='mood'?'心情':it.tag==='exercise'?'运动':'体重'}</span><span style="${it.done?'text-decoration:line-through;color:var(--text-light)':''}">${escHtml(it.text)}</span></div>`).join('');h+='</div>';});}
 return h;}
 function renderScheduleMonth(){const n=new Date(),ts=fmtDate(n);if(!calYear){calYear=n.getFullYear();calMonth=n.getMonth();}
-const first=new Date(calYear,calMonth,1);const firstDay=first.getDay();const lastDay=new Date(calYear,calMonth+1,0).getDate();const prevLast=new Date(calYear,calMonth,0).getDate();
-let h=`<div class="cal-header"><div class="cal-title">${calYear}年${calMonth+1}月</div><div class="cal-nav"><button onclick="calPrev()">‹</button><button onclick="calToday()">今</button><button onclick="calNext()">›</button></div></div><div class="cal-grid">${['日','一','二','三','四','五','六'].map(d=>`<div class="cal-weekday">${d}</div>`).join('')}`;
-for(let i=firstDay-1;i>=0;i--)h+=`<div class="cal-day other"><div class="cal-day-num">${prevLast-i}</div><div class="cal-events"></div></div>`;
-for(let d=1;d<=lastDay;d++){const ds=fmtDate(new Date(calYear,calMonth,d));const evts=getEventsOnDay(ds);const isToday=ds===ts;const isSel=calSelected===ds;let cls='cal-day';if(isToday)cls+=' today';if(isSel)cls+=' selected';const shown=evts.slice(0,3);const more=evts.length>3?`<div class="cal-more">+${evts.length-3}</div>`:'';
-h+=`<div class="${cls}" data-date="${ds}" onclick="calSelect('${ds}')"><div class="cal-day-num"><span>${d}</span><span class="lunar">${d===1?lunarMonth(first):''}</span></div><div class="cal-events">${shown.map(e=>`<div class="cal-event ${e.type}">${e.text||e.tag}</div>`).join('')}${more}</div></div>`;}
-const totalCells=firstDay+lastDay;const trailing=totalCells%7===0?0:7-totalCells%7;
-for(let i=1;i<=trailing;i++)h+=`<div class="cal-day other"><div class="cal-day-num">${i}</div><div class="cal-events"></div></div>`;
+const wd=['日','一','二','三','四','五','六'];
+const lastDay=new Date(calYear,calMonth+1,0).getDate();
+let h=`<div class="cal-header"><div class="cal-title">${calYear}年${calMonth+1}月</div><div class="cal-nav"><button onclick="calPrev()">‹</button><button onclick="calToday()">今</button><button onclick="calNext()">›</button></div></div><div class="cal-list">`;
+for(let d=1;d<=lastDay;d++){const ds=fmtDate(new Date(calYear,calMonth,d));const evts=getEventsOnDay(ds);const isToday=ds===ts;const isSel=calSelected===ds;const wdTxt=wd[new Date(calYear,calMonth,d).getDay()];
+h+=`<div class="cal-list-day ${isToday?'today':''} ${isSel?'selected':''}" onclick="calSelect('${ds}')">
+  <div class="cal-list-date"><div class="ld-num">${d}</div><div class="ld-weekday">周${wdTxt}</div></div>
+  <div class="cal-list-events">${evts.length?evts.map(e=>`<div class="cal-list-event ${e.type}">${e.text||e.tag}</div>`).join(''):'<div class="cal-list-empty">·</div>'}</div>
+</div>`;}
 h+='</div>';
-if(calSelected){const evts=getEventsOnDay(calSelected);const dt=new Date(calSelected);const wd=['日','一','二','三','四','五','六'][dt.getDay()];h+=`<div class="cal-detail"><div class="cal-detail-title">${calSelected} 星期${wd}</div><div class="cal-detail-date">共 ${evts.length} 项</div>${evts.length?evts.map(e=>`<div class="cal-detail-row"><span class="cal-tag" style="background:${tagColor(e.type)}">${e.tag}</span><span>${escHtml(e.text||'')}</span></div>`).join(''):'<div class="empty-state">这一天没有记录</div>'}</div>`;}
+if(calSelected){const evts=getEventsOnDay(calSelected);const dt=new Date(calSelected);const wdSel=wd[dt.getDay()];h+=`<div class="cal-detail"><div class="cal-detail-title">${calSelected} 星期${wdSel}</div><div class="cal-detail-date">共 ${evts.length} 项</div>${evts.length?evts.map(e=>`<div class="cal-detail-row"><span class="cal-tag" style="background:${tagColor(e.type)}">${e.tag}</span><span>${escHtml(e.text||'')}</span></div>`).join(''):'<div class="empty-state">这一天没有记录</div>'}</div>`;}
 return h;}
 function bindCalendarCells(){/* no-op, onclick inline */}
 function calPrev(){calMonth--;if(calMonth<0){calMonth=11;calYear--;}calSelected=null;renderTodo();}
