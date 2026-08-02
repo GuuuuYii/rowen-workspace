@@ -486,7 +486,7 @@ async function quickExerciseCheckin(){const d=fmtDate(new Date()),i=exercises.fi
 // ── Day Todo ──
 function currentDay(){return new Date().getHours()>=18?'tomorrow':'today';}
 function yesterdayStr(){const d=new Date();d.setDate(d.getDate()-1);return fmtDate(d);}
-function renderTodo(){const ts=fmtDate(new Date()),ys=yesterdayStr();let mg=0;todos.forEach(t=>{if(!t.done&&t.date===ys&&t.day==='today'){t.date=ts;t.migrated=true;mg++;}});if(mg>0)saveCloud('todos',todos);todos.forEach(t=>{if(!t.done&&t.date===ts&&!t.migrated)t.day='today';});
+function renderTodo(){try{const ts=fmtDate(new Date()),ys=yesterdayStr();let mg=0;todos.forEach(t=>{if(!t.done&&t.date===ys&&t.day==='today'){t.date=ts;t.migrated=true;mg++;}});if(mg>0)saveCloud('todos',todos);todos.forEach(t=>{if(!t.done&&t.date===ts&&!t.migrated)t.day='today';});
 const dt=todos.filter(t=>t.day===activeDay).sort((a,b)=>a.order-b.order);
 let h=`<div class="todo-top"><input type="text" class="todo-quick-input" id="todo-quick-input" placeholder="今天要做什么？" maxlength="60" onkeydown="if(event.key==='Enter')openAddTask()"><button class="todo-add-btn" onclick="openAddTask()">+</button></div>`;
 if(mg>0)h+=`<div class="todo-migrate">📥 昨天 <b>${mg}</b> 项未完成，已移入今天</div>`;
@@ -508,6 +508,7 @@ $('#module-content').innerHTML=`<div class="card">
     <div class="card-title"><span class="dot"></span>Todo</div>
     <div class="todo-tabs">${['today','tomorrow'].map(d=>`<button class="todo-tab ${activeDay===d?'active':''}" data-day="${d}">${d==='today'?'今天':'明天'}</button>`).join('')}</div>
   </div>${h}</div>`;
+}catch(e){document.getElementById("module-content").innerHTML='<div class="card"><div class="empty-state" style="color:#c88">错误: '+e.message+'</div></div>';}
 bindTodoEvents();
 if(todoViewMode==='month')bindCalendarCells();
 }
