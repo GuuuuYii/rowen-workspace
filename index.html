@@ -239,6 +239,36 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft
 .modal-content img{width:100%;border-radius:var(--radius-sm);}
 .modal-content h3{margin-bottom:4px;}
 .modal-content p{color:var(--text-soft);font-size:13px;margin:4px 0;}
+
+/* ── Calendar ── */
+.cal-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; }
+.cal-title { font-size:18px; font-weight:500; }
+.cal-nav { display:flex; gap:8px; }
+.cal-nav button { width:28px; height:28px; border:1px solid var(--border); border-radius:50%; background:#fff; cursor:pointer; transition:all var(--transition); font-size:13px; color:var(--text-soft); }
+.cal-nav button:hover { border-color:var(--accent); color:var(--accent); }
+.cal-grid { display:grid; grid-template-columns:repeat(7, 1fr); gap:6px; }
+.cal-weekday { text-align:center; font-size:11px; color:var(--text-light); padding:6px 0; font-weight:500; }
+.cal-day { background:#fff; border:1px solid var(--border); border-radius:8px; min-height:88px; padding:6px; display:flex; flex-direction:column; transition:all var(--transition); cursor:pointer; overflow:hidden; }
+.cal-day:hover { border-color:var(--accent); box-shadow:0 2px 8px rgba(0,0,0,.04); }
+.cal-day.other { opacity:.35; }
+.cal-day.today { border:1.5px solid var(--accent); background:var(--accent-bg); }
+.cal-day.selected { background:var(--accent-bg); border:1.5px solid var(--accent); }
+.cal-day-num { font-size:12px; font-weight:500; margin-bottom:4px; display:flex; justify-content:space-between; }
+.cal-day-num .lunar { font-size:10px; color:var(--text-light); font-weight:400; }
+.cal-events { display:flex; flex-direction:column; gap:2px; overflow:hidden; flex:1; }
+.cal-event { font-size:10px; padding:2px 4px; border-radius:3px; color:#fff; line-height:1.3; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.cal-event.todo { background:#7eb8a0; }
+.cal-event.travel { background:#d4a574; }
+.cal-event.mood { background:#d4a0c0; }
+.cal-event.exercise { background:#8cbf8c; }
+.cal-event.weight { background:#9aa0c4; }
+.cal-more { font-size:9px; color:var(--text-light); padding:1px 4px; }
+.cal-detail { background:#fff; border:1px solid var(--border); border-radius:var(--radius); padding:18px; margin-bottom:16px; }
+.cal-detail-title { font-size:16px; font-weight:600; margin-bottom:4px; }
+.cal-detail-date { font-size:11px; color:var(--text-light); margin-bottom:12px; }
+.cal-detail-row { display:flex; gap:8px; padding:8px 0; border-bottom:1px solid var(--border); font-size:13px; align-items:center; }
+.cal-detail-row:last-child { border-bottom:none; }
+.cal-tag { font-size:10px; padding:2px 8px; border-radius:10px; color:#fff; flex-shrink:0; }
 @media(max-width:720px){.sidebar{width:60px;}.sidebar-logo h2,.sidebar-logo .sub,.nav-item{justify-content:center;padding:10px 0;}.main{padding:20px 14px 40px;}}
 </style>
 </head>
@@ -254,6 +284,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft
   <button class="nav-item" data-module="travel">✈️ 旅游日志</button>
   <button class="nav-item" data-module="mood">💭 心情记录</button>
   <button class="nav-item" data-module="body">🏃 身体管理</button>
+  <button class="nav-item" data-module="cal">📅 日程</button>
 </div>
 <div class="sidebar-foot sync-offline" id="sync-status-foot"><span class="sync-dot"></span> 未连接</div>
 </nav>
@@ -295,10 +326,10 @@ async function bootstrap(){try{const{data,error}=await db.from('dashboard_data')
 let todos=[],lifeItems=[],travels=[],moods=[],exercises=[],weights=[],selectedMood='';
 let activeDay='today',activeSubTarget=null,bodyTrack='exercise',currentModule='home';
 
-const TITLES={home:'首页',todo:'Day Todo',life:'生活清单',travel:'旅游日志',mood:'心情记录',body:'身体管理'};
+const TITLES={home:'首页',todo:'Day Todo',life:'生活清单',travel:'旅游日志',mood:'心情记录',body:'身体管理',cal:'日程'};
 document.querySelectorAll('.nav-item').forEach(btn=>{btn.addEventListener('click',()=>{document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));btn.classList.add('active');currentModule=btn.dataset.module;$('#module-title').textContent=TITLES[currentModule];renderCurrent();});});
 
-function renderCurrent(){switch(currentModule){case'home':renderHome();break;case'todo':renderTodo();break;case'life':renderLife();break;case'travel':renderTravel();break;case'mood':renderMood();break;case'body':renderBody();break;}}
+function renderCurrent(){switch(currentModule){case'home':renderHome();break;case'todo':renderTodo();break;case'life':renderLife();break;case'travel':renderTravel();break;case'mood':renderMood();break;case'body':renderBody();break;case'cal':renderCalendar();break;}}
 
 function updateHeader(){const n=new Date(),w=['日','一','二','三','四','五','六'];$('#module-date').textContent=`${n.getFullYear()}年${n.getMonth()+1}月${n.getDate()}日 · 星期${w[n.getDay()]}`;}
 
@@ -453,6 +484,72 @@ $('#weight-input')?.addEventListener('keydown',e=>{if(e.key==='Enter')addWeight(
 function switchBodyTabClick(t){bodyTrack=t;renderBody();}
 async function toggleExerciseToday(){const d=fmtDate(new Date()),i=exercises.findIndex(e=>e.date===d&&e.type!=='rest');if(i>=0){exercises.splice(i,1);await saveCloud('exercise',exercises);renderBody();toast('已取消');}else{exercises.push({date:d,type:'done',id:Date.now()});await saveCloud('exercise',exercises);renderBody();toast('打卡成功！');}}
 async function addWeight(){const v=parseFloat($('#weight-input')?.value);if(isNaN(v)||v<30||v>200)return toast('请输入有效体重');const d=fmtDate(new Date()),i=weights.findIndex(w=>w.date===d);if(i>=0)weights[i].value=v;else weights.push({date:d,value:v,id:Date.now()});await saveCloud('weight',weights);renderBody();}
+
+// ── Calendar ──
+let calYear=0,calMonth=0,calSelected=null;
+function lunarMonth(d){const lm=['正','二','三','四','五','六','七','八','九','十','冬','腊'];return lm[d.getMonth()]+'月';}
+function getEventsOnDay(ds){const evts=[];todos.filter(t=>t.date===ds).forEach(t=>evts.push({type:'todo',text:t.text,done:t.done,tag:'待办'}));travels.filter(t=>t.date===ds).forEach(t=>evts.push({type:'travel',text:t.location,tag:'旅行'}));moods.filter(m=>m.date&&m.date.startsWith(ds)).forEach(m=>evts.push({type:'mood',text:(m.mood||'')+' '+(m.note||''),tag:'心情'}));exercises.filter(e=>e.date===ds&&e.type!=='rest').forEach(e=>evts.push({type:'exercise',text:'运动打卡',tag:'运动'}));weights.filter(w=>w.date===ds).forEach(w=>evts.push({type:'weight',text:w.value+'kg',tag:'体重'}));return evts;}
+function renderCalendar(){
+  const n=new Date();
+  if(!calYear){calYear=n.getFullYear();calMonth=n.getMonth();}
+  const todayStr=fmtDate(n);
+  const first=new Date(calYear,calMonth,1);
+  const firstDay=first.getDay();
+  const lastDay=new Date(calYear,calMonth+1,0).getDate();
+  const prevLast=new Date(calYear,calMonth,0).getDate();
+
+  let h=`<div class="cal-header">
+    <div class="cal-title">${calYear}年${calMonth+1}月</div>
+    <div class="cal-nav">
+      <button onclick="calPrev()">‹</button>
+      <button onclick="calToday()">今</button>
+      <button onclick="calNext()">›</button>
+    </div>
+  </div>
+  <div class="cal-grid">
+    <div class="cal-weekday">日</div><div class="cal-weekday">一</div><div class="cal-weekday">二</div><div class="cal-weekday">三</div>
+    <div class="cal-weekday">四</div><div class="cal-weekday">五</div><div class="cal-weekday">六</div>`;
+  // Previous month overflow
+  for(let i=firstDay-1;i>=0;i--){const d=prevLast-i;h+=`<div class="cal-day other"><div class="cal-day-num">${d}</div><div class="cal-events"></div></div>`;}
+  // Current month
+  for(let d=1;d<=lastDay;d++){
+    const ds=fmtDate(new Date(calYear,calMonth,d));
+    const evts=getEventsOnDay(ds);
+    const isToday=ds===todayStr;
+    const isSel=calSelected===ds;
+    let cls='cal-day';if(isToday)cls+=' today';if(isSel)cls+=' selected';
+    const shown=evts.slice(0,3);
+    const more=evts.length>3?`<div class="cal-more">+${evts.length-3}</div>`:'';
+    h+=`<div class="${cls}" onclick="calSelect('${ds}')">
+      <div class="cal-day-num"><span>${d}</span><span class="lunar">${d===1?lunarMonth(first):''}</span></div>
+      <div class="cal-events">${shown.map(e=>`<div class="cal-event ${e.type}">${e.text||e.tag}</div>`).join('')}${more}</div>
+    </div>`;
+  }
+  // Next month overflow
+  const totalCells=firstDay+lastDay;
+  const trailing=totalCells%7===0?0:7-totalCells%7;
+  for(let i=1;i<=trailing;i++){h+=`<div class="cal-day other"><div class="cal-day-num">${i}</div><div class="cal-events"></div></div>`;}
+  h+='</div>';
+
+  // Selected day detail
+  if(calSelected){
+    const evts=getEventsOnDay(calSelected);
+    const dt=new Date(calSelected);
+    const wd=['日','一','二','三','四','五','六'][dt.getDay()];
+    h+=`<div class="cal-detail">
+      <div class="cal-detail-title">${calSelected} 星期${wd}</div>
+      <div class="cal-detail-date">共 ${evts.length} 项</div>
+      ${evts.length?evts.map(e=>`<div class="cal-detail-row"><span class="cal-tag" style="background:${tagColor(e.type)}">${e.tag}</span><span>${escHtml(e.text||'')}</span></div>`).join(''):'<div class="empty-state">这一天没有记录</div>'}
+    </div>`;
+  }
+
+  $('#module-content').innerHTML=`<div class="card">${h}</div>`;
+}
+function tagColor(t){return{todo:'#7eb8a0',travel:'#d4a574',mood:'#d4a0c0',exercise:'#8cbf8c',weight:'#9aa0c4'}[t]||'#888';}
+function calPrev(){calMonth--;if(calMonth<0){calMonth=11;calYear--;}calSelected=null;renderCalendar();}
+function calNext(){calMonth++;if(calMonth>11){calMonth=0;calYear++;}calSelected=null;renderCalendar();}
+function calToday(){const n=new Date();calYear=n.getFullYear();calMonth=n.getMonth();calSelected=null;renderCalendar();}
+function calSelect(ds){calSelected=ds;renderCalendar();}
 
 // ── Init ──
 updateHeader();activeDay=currentDay();
