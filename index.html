@@ -884,7 +884,7 @@ async function processAI(){
 
 支持的操作类型:
 
-1. 添加Day Todo任务: {"action":"add_todo","text":"任务内容","time":"09:00"(可选)}
+1. 添加Day Todo任务: {"action":"add_todo","text":"任务内容","time":"09:00"(可选),"date":"YYYY-MM-DD"(可选,表示日期)}
 
 2. 添加生活清单: {"action":"add_life","text":"事项","cat":"daily|shopping|other"}
 
@@ -934,7 +934,7 @@ for(const a of actions){
 
 switch(a.action){
 
-case'add_todo':{const mx=Math.max(...todos.filter(t=>t.day==='today').map(t=>t.order),0);todos.push({id:Date.now().toString(),text:a.text||input,time:a.time||'',day:'today',date:todayStr,done:false,order:mx+1,subtasks:[],note:'',migrated:false});results.push(`📋 添加任务：${a.text}`);break;}
+case'add_todo':{const adate=a.date||todayStr;const aday=adate===todayStr?'today':'tomorrow';const allDayTodos=todos.filter(t=>t.day===aday);const mx=Math.max(...allDayTodos.map(t=>t.order),0);todos.push({id:Date.now().toString(),text:a.text||input,time:a.time||'',day:aday,date:adate,done:false,order:mx+1,subtasks:[],note:'',migrated:false});results.push('📋 添加任务：'+a.text+(a.date?' (日期:'+a.date+')':''));break;}
 
 case'add_life':{lifeItems.unshift({text:a.text||input,cat:a.cat||'daily',done:false,id:Date.now()});results.push(`📦 添加清单：${a.text}`);break;}
 
