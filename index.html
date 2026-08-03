@@ -1288,7 +1288,7 @@ async function submitAddTask(){
 
   else targetDate=null;
 
-  const day=atDateType==='tomorrow'?'tomorrow':'today';
+  const day=targetDate===todayStr?'today':(atDateType==='tomorrow'?'tomorrow':'today');
 
   if(atCat==='life'||atCat==='shopping'){
 
