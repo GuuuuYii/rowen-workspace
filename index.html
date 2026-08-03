@@ -1184,140 +1184,30 @@ function getEventsOnDay(ds){const evts=[];todos.filter(t=>t.date===ds).forEach(t
 
 function setTodoView(m){todoViewMode=m;renderTodo();}
 
-function renderScheduleDetail(){const n=new Date(),ts=fmtDate(n);const tod=todos.filter(t=>t.date===ts).sort((a,b)=>a.order-b.order);const trv=travels.filter(t=>t.date===ts);const md=moods.filter(m=>m.date&&m.date.startsWith(ts));
-
-const wd=['日','一','二','三','四','五','六'][n.getDay()];
-
-let h=`<div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:10px"><div style="font-size:15px;font-weight:600">今天 (${ts})</div><div style="font-size:12px;color:var(--text-light)">星期${wd}</div></div>`;
-
-const sections=[];
-
-if(tod.length)sections.push({title:'待办',count:tod.length,items:tod.map(t=>({tag:'todo',text:t.text+(t.time?` ⏰${t.time}`:''),done:t.done}))});
-
-if(trv.length)sections.push({title:'旅行',count:trv.length,items:trv.map(t=>({tag:'travel',text:t.location,note:t.note}))});
-
-if(md.length)sections.push({title:'心情',count:md.length,items:md.map(m=>({tag:'mood',text:m.mood+' '+(m.note||'')}))});
-
-
-
-
-
-if(!sections.length)h+=`<div class="empty-state" style="padding:20px">今天还没有记录 ✦</div>`;
-
-else{sections.forEach(s=>{h+=`<div style="margin-bottom:10px"><div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text-soft);margin-bottom:6px"><span>${s.title}</span><span>${s.count}</span></div>`;h+=s.items.map(it=>`<div style="display:flex;gap:8px;padding:6px 0;font-size:13px;align-items:center"><span class="cal-tag" style="background:${tagColor(it.tag)}">${it.tag==='todo'?'待办':it.tag==='travel'?'旅行':it.tag==='mood'?'心情':it.tag==='exercise'?'运动':'体重'}</span><span style="${it.done?'text-decoration:line-through;color:var(--text-light)':''}">${escHtml(it.text)}</span></div>`).join('');h+='</div>';});}
-
-return h;}
-
-function renderScheduleMonth(){const n=new Date(),ts=fmtDate(n);if(!calYear){calYear=n.getFullYear();calMonth=n.getMonth();}
-
-const wd=['日','一','二','三','四','五','六'];
-
-const lastDay=new Date(calYear,calMonth+1,0).getDate();
-
-let h=`<div class="cal-header"><div class="cal-title">${calYear}年${calMonth+1}月</div><div class="cal-nav"><button onclick="calPrev()">‹</button><button onclick="calToday()">今</button><button onclick="calNext()">›</button></div></div><div class="cal-list">`;
-
-for(let d=1;d<=lastDay;d++){const ds=fmtDate(new Date(calYear,calMonth,d));const evts=getEventsOnDay(ds);const isToday=ds===ts;const isSel=calSelected===ds;const wdTxt=wd[new Date(calYear,calMonth,d).getDay()];
-
-h+=`<div class="cal-list-day ${isToday?'today':''} ${isSel?'selected':''}" onclick="calSelect('${ds}')">
-
-  <div class="cal-list-date"><div class="ld-num">${d}</div><div class="ld-weekday">周${wdTxt}</div></div>
-
-  <div class="cal-list-events">${evts.length?evts.map(e=>`<div class="cal-list-event ${e.type}">${e.text||e.tag}</div>`).join(''):'<div class="cal-list-empty">·</div>'}</div>
-
-</div>`;}
-
-h+='</div>';
-
-if(calSelected){const evts=getEventsOnDay(calSelected);const dt=new Date(calSelected);const wdSel=wd[dt.getDay()];h+=`<div class="cal-detail"><div class="cal-detail-title">${calSelected} 星期${wdSel}</div><div class="cal-detail-date">共 ${evts.length} 项</div>${evts.length?evts.map(e=>`<div class="cal-detail-row"><span class="cal-tag" style="background:${tagColor(e.type)}">${e.tag}</span><span>${escHtml(e.text||'')}</span></div>`).join(''):'<div class="empty-state">这一天没有记录</div>'}</div>`;}
-
-return h;}
-
-function renderScheduleOnly(){return`<div class="card"><div class="card-header"><div class="card-title"><span class="dot"></span>日程概览</div><div class="schedule-tabs"><button class="schedule-tab ${todoViewMode==='detail'?'active':''}" onclick="todoViewMode='detail';renderTodo();">按日</button><button class="schedule-tab ${todoViewMode==='month'?'active':''}" onclick="todoViewMode='month';renderTodo();">按月</button></div></div>${todoViewMode==='detail'?renderScheduleDetail():renderScheduleMonth()}</div>`;}
-
-function bindCalendarCells(){/* no-op, onclick inline */}
-
-function calPrev(){calMonth--;if(calMonth<0){calMonth=11;calYear--;}calSelected=null;renderTodo();}
-
-function calNext(){calMonth++;if(calMonth>11){calMonth=0;calYear++;}calSelected=null;renderTodo();}
-
-function calToday(){const n=new Date();calYear=n.getFullYear();calMonth=n.getMonth();calSelected=null;renderTodo();}
-
-function calSelect(ds){calSelected=ds;renderTodo();}
-
-
-
-// ── Add Task Modal ──
-
-let atCat='life',atDateType='today';
-
-function openAddTask(){const quick=$('#todo-quick-input')?.value?.trim();if(quick)$('#at-title').value=quick;$('#at-title').value=quick||'';$('#at-desc').value='';$('#at-time').value='';$('#at-date').value='';atCat='life';atDateType='today';updateAtChips();document.getElementById('add-task-overlay').classList.add('show');}
-
-function closeAddTask(e){if(e&&e.target!==e.currentTarget)return;document.getElementById('add-task-overlay').classList.remove('show');}
-
-function toggleAtMore(){document.getElementById('at-more-expanded').classList.toggle('show');}
-
-function updateAtChips(){document.querySelectorAll('.at-tab').forEach(t=>t.classList.toggle('active',t.dataset.cat===atCat));document.querySelectorAll('.at-date-chip').forEach(c=>c.classList.toggle('active',c.dataset.type===atDateType));}
-
-document.querySelectorAll('.at-tab').forEach(t=>{t.addEventListener('click',()=>{atCat=t.dataset.cat;updateAtChips();});});
-
-document.querySelectorAll('.at-date-chip').forEach(c=>{c.addEventListener('click',()=>{atDateType=c.dataset.type;updateAtChips();});});
-
-async function submitAddTask(){
-
-  const title=$('#at-title')?.value?.trim();if(!title)return toast('请输入任务标题');
-
-  const desc=$('#at-desc')?.value?.trim();
-
-  const time=$('#at-time')?.value;
-
-  const date=$('#at-date')?.value;
-
-  const n=new Date();
-
-  const todayStr=fmtDate(n);
-
-  const tomorrow=new Date(n);tomorrow.setDate(n.getDate()+1);const tomorrowStr=fmtDate(tomorrow);
-
-  let targetDate;
-
-  if(date)targetDate=date;
-
-  else if(atDateType==='today')targetDate=todayStr;
-
-  else if(atDateType==='tomorrow')targetDate=tomorrowStr;
-
-  else targetDate=null;
-
-  const day=targetDate===todayStr?'today':(atDateType==='tomorrow'?'tomorrow':'today');
-
-  if(atCat==='life'||atCat==='shopping'){
-
-    const realCat=atCat==='shopping'?'shopping':'daily';
-
-    lifeItems.unshift({text:title+(desc?` (${desc})`:''),cat:realCat,done:false,id:Date.now()});
-
-    await saveCloud('life',lifeItems);
-
-    toast('已加入清单');
-
-  }else{
-
-    const mx=Math.max(...todos.filter(x=>x.day===day&&x.day!==undefined).map(x=>x.order),0);
-
-    todos.push({id:Date.now().toString(),text:title,time:time||'',day:day,date:targetDate||todayStr,done:false,order:mx+1,subtasks:[],note:desc||'',migrated:false});
-
-    await saveCloud('todos',todos);
-
-    toast('已添加任务');
-
-  }
-
-  document.getElementById('add-task-overlay').classList.remove('show');
-
-  renderCurrent();
-
+function renderScheduleDetail(){
+  const n=new Date(),ts=fmtDate(n);
+  const tod=todos.filter(t=>t.date===ts).sort((a,b)=>a.order-b.order);
+  const trv=travels.filter(t=>t.date===ts);
+  const md=moods.filter(m=>m.date&&m.date.startsWith(ts));
+  const wd=['日','一','二','三','四','五','六'][n.getDay()];
+  let h=`<div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:14px"><div style="font-size:15px;font-weight:600">今天 (${ts})</div><div style="font-size:12px;color:var(--text-light)">星期${wd}</div></div>`;
+  const sections=[];
+  if(tod.length)sections.push({title:'待办',count:tod.length,items:tod.map(t=>({tag:'todo',text:t.text,time:t.time||'',done:t.done}))});
+  if(trv.length)sections.push({title:'旅行',count:trv.length,items:trv.map(t=>({tag:'travel',text:t.location,note:t.note,time:t.date||''}))});
+  if(md.length)sections.push({title:'心情',count:md.length,items:md.map(m=>({tag:'mood',text:m.mood+' '+(m.note||''),time:m.date&&m.date.indexOf(' ')>0?m.date.substring(m.date.indexOf(' ')+1):''}))});
+  if(!sections.length)h+=`<div class="empty-state" style="padding:20px">今天还没有记录 ✦</div>`;
+  else{sections.forEach(s=>{
+    h+=`<div style="margin-bottom:14px"><div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text-soft);margin-bottom:8px;font-weight:500"><span>${s.title}</span><span>${s.count}</span></div>`;
+    h+=s.items.map(it=>{
+      const tagText=it.tag==='todo'?'待办':it.tag==='travel'?'旅行':'心情';
+      const tagBg=tagColor(it.tag);
+      const showTime=it.time||'';
+      return `<div style="display:flex;align-items:center;padding:8px 0;font-size:13px;border-bottom:1px solid #f0f0ee;gap:10px"><span class="cal-tag" style="background:${tagBg};flex-shrink:0">${tagText}</span><span style="flex:1;${it.done?'text-decoration:line-through;color:var(--text-light)':''}">${escHtml(it.text)}</span><span style="color:var(--text-light);font-size:11px;flex-shrink:0;font-variant-numeric:tabular-nums;min-width:54px;text-align:right">${escHtml(showTime)}</span></div>`;
+    }).join('');
+    h+='</div>';
+  });}
+  return h;
 }
-
 
 
 // ── Init ──
