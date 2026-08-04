@@ -4818,19 +4818,7 @@ function renderScheduleDetail(){
 
     if(allItems.length){
 
-      allItems.forEach(it=>{
-
-        h+='<div style="display:flex;align-items:center;padding:7px 0;font-size:13px;border-bottom:1px solid #f0f0ee;gap:10px">';
-
-        h+='<span class="cal-tag" style="background:'+tagColor(it.type)+';flex-shrink:0">'+it.tag+'</span>';
-
-        h+='<span style="flex:1;'+(it.done?'text-decoration:line-through;color:var(--text-light)':'')+'">'+escHtml(it.text)+'</span>';
-
-        h+='<span style="color:var(--text-light);font-size:11px;flex-shrink:0;text-align:right">'+escHtml(it.time)+'</span>';
-
-        h+='</div>';
-
-      });
+      allItems.forEach((it,idx)=>{const delId='sdel_'+Date.now()+'_'+idx;h+='<div style="position:relative;overflow:hidden;touch-action:pan-y" class="swipe-cell">';h+='<div style="position:absolute;right:0;top:0;bottom:0;width:60px;background:#e55;color:#fff;font-size:13px;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:0" onclick="deleteScheduleItem(\''+escJs(it.text)+'\',\''+it.date+'\',\''+it.type+'\')">\u5220\u9664</div>';h+='<div style="display:flex;align-items:center;padding:7px 0;font-size:13px;border-bottom:1px solid #f0f0ee;gap:10px;position:relative;z-index:1;background:#fff;transition:transform .2s" class="swipe-content" id="'+delId+'" ontouchstart="swipeStart(event)" ontouchmove="swipeMove(event)" ontouchend="swipeEnd(event)" onmousedown="event.preventDefault()">';h+='<span class="cal-tag" style="background:'+tagColor(it.type)+';flex-shrink:0">'+it.tag+'</span>';h+='<span style="flex:1;'+(it.done?'text-decoration:line-through;color:var(--text-light)':'')+'">'+escHtml(it.text)+'</span>';h+='<span style="color:var(--text-light);font-size:11px;flex-shrink:0;text-align:right">'+escHtml(it.time)+'</span>';h+='</div></div>';});
 
     }
 
@@ -4987,6 +4975,19 @@ function renderScheduleMonth(){
 
 
 
+
+
+let swipeX=0,swipeStartX=0,swipeTarget=null;
+function escJs(s){return s.replace(/'/g,"\\'").replace(/"/g,'\\"');}
+function swipeStart(e){const t=e.target.closest('.swipe-content');if(!t)return;swipeTarget=t;swipeStartX=e.touches[0].clientX;swipeX=parseFloat(t.style.transform.replace('translateX(','').replace('px)',''))||0;}
+function swipeMove(e){if(!swipeTarget)return;const dx=e.touches[0].clientX-swipeStartX+swipeX;if(dx<0&&dx>-70)swipeTarget.style.transform='translateX('+dx+'px)';}
+function swipeEnd(e){if(!swipeTarget)return;swipeTarget=null;}
+async function deleteScheduleItem(text,date,type){
+  if(type==='todo'){todos=todos.filter(t=>!(t.text===text&&t.date===date));await saveCloud('todos',todos);}
+  else if(type==='travel'){travels=travels.filter(t=>!(t.location===text&&t.date===date));await saveCloud('travel',travels);}
+  else if(type==='mood'){moods=moods.filter(m=>!(m.date&&m.date.startsWith(date)&&(m.mood+' '+(m.note||'')).trim()===text.trim()));await saveCloud('mood',moods);}
+  renderScheduleDetail();renderTodo();toast('已删除');
+}
 
 function calPrev(){calMonth--;if(calMonth<0){calMonth=11;calYear--;}calSelected=null;renderTodo();}
 
