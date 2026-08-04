@@ -61430,7 +61430,7 @@ if(undone.length){
 
 
 
-    body+='<span style="flex:1;'+(t.done?'text-decoration:line-through;color:var(--text-light)':'')+'">'+escHtml(t.text)+'</span></div>';
+    body+='<span style="flex:1;'+(t.done?'text-decoration:line-through;color:var(--text-light)':'')+'">'+ '<span style="display:inline-block;width:3px;height:14px;background:'+(catColors[(t.cat||"work")]||"#a5b8a0")+';border-radius:2px;margin-right:8px;flex-shrink:0;align-self:center"></span>'+escHtml(t.text)+'</span></div>';
 
 
 
@@ -61718,7 +61718,7 @@ if(dt.length){
 
     h += `<input type="checkbox" class="todo-cb" ${t.done?'checked':''} onchange="toggleTodo('${t.id}')">`;
 
-    h += `<div class="todo-body"><div class="todo-text">${escHtml(t.text)}</div>`;
+    const tc=catColors[(t.cat||"work")]||"#a5b8a0";h += `<div class="todo-body"><div class="todo-text"><span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:${tc};margin-right:6px;flex-shrink:0"></span>${escHtml(t.text)}</div>`;
 
     h += `<div class="todo-meta">`;
 
@@ -69456,7 +69456,7 @@ function lunarMonth(d){const lm=['正','二','三','四','五','六','七','八'
 
 
 
-function getEventsOnDay(ds){const evts=[];todos.filter(t=>t.date===ds).forEach(t=>evts.push({type:'todo',text:t.text,done:t.done,tag:'待办'}));travels.filter(t=>t.date===ds).forEach(t=>evts.push({type:'travel',text:t.location,tag:'旅行'}));moods.filter(m=>m.date&&m.date.startsWith(ds)).forEach(m=>evts.push({type:'mood',text:(m.mood||'')+' '+(m.note||''),tag:'心情'}));return evts;}
+function getEventsOnDay(ds){const evts=[];todos.filter(t=>t.date===ds).forEach(t=>evts.push({type:'todo',text:t.text,done:t.done,color:catColors[(t.cat||"work")]||"#a5b8a0",tag:'待办'}));travels.filter(t=>t.date===ds).forEach(t=>evts.push({type:'travel',text:t.location,tag:'旅行'}));moods.filter(m=>m.date&&m.date.startsWith(ds)).forEach(m=>evts.push({type:'mood',text:(m.mood||'')+' '+(m.note||''),tag:'心情'}));return evts;}
 
 
 
@@ -72624,7 +72624,7 @@ function renderScheduleMonth(){
 
 
 
-    for(let e of shown){h+='<div style="background:'+tagColor(e.type)+';color:#fff;font-size:7px;padding:1px 3px;border-radius:2px;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%">'+escHtml(e.text||e.tag)+'</div>';}
+    for(let e of shown){const bgc=e.color||tagColor(e.type);h+='<div style="background:'+bgc+';color:#fff;font-size:7px;padding:1px 3px;border-radius:2px;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%">'+escHtml(e.text||e.tag)+'</div>';}
 
 
 
@@ -73848,7 +73848,7 @@ function tagColor(t){return{todo:'#7eb8a0',travel:'#d4a574',mood:'#d4a0c0'}[t]||
 
 
 
-function getEventsOnDay(ds){const evts=[];todos.filter(t=>t.date===ds).forEach(t=>evts.push({type:'todo',text:t.text,done:t.done,tag:'\u5f85\u529e'}));travels.filter(t=>t.date===ds).forEach(t=>evts.push({type:'travel',text:t.location,tag:'\u65c5\u884c'}));moods.filter(m=>m.date&&m.date.startsWith(ds)).forEach(m=>evts.push({type:'mood',text:m.mood,tag:'\u5fc3\u60c5'}));return evts;}
+function getEventsOnDay(ds){const evts=[];todos.filter(t=>t.date===ds).forEach(t=>evts.push({type:'todo',text:t.text,done:t.done,color:catColors[(t.cat||"work")]||"#a5b8a0",tag:'\u5f85\u529e'}));travels.filter(t=>t.date===ds).forEach(t=>evts.push({type:'travel',text:t.location,tag:'\u65c5\u884c'}));moods.filter(m=>m.date&&m.date.startsWith(ds)).forEach(m=>evts.push({type:'mood',text:m.mood,tag:'\u5fc3\u60c5'}));return evts;}
 
 
 
