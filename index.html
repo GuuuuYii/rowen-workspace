@@ -30829,6 +30829,7 @@ async function toggleHomeCheckin(cat){const d=fmtDate(new Date());if(cat==='engl
 
 
 
+function bindCalendarCells(){}
 function currentDay(){return new Date().getHours()>=18?'tomorrow':'today';}function yesterdayStr(){const d=new Date();d.setDate(d.getDate()-1);return fmtDate(d);}
 function renderTodo(){
 try{
