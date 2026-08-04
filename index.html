@@ -103973,7 +103973,7 @@ function setupRealtime(){/* noop - realtime not available with custom client */}
 
 
 
-async function bootstrap(){try{const{data,error}=await db.from('dashboard_data').select('module,data');if(error)throw error;setSyncStatus(true);try{setupRealtime();}catch(e){}const seed={};if(data)data.forEach(r=>{if(Array.isArray(r.data))seed[r.module]=r.data;});const mods=['todos','life','travel','mood','exercise','engstudy','weight'];let hl=false;for(const m of mods){if(!seed[m]){const l=loadLocal(m);seed[m]=l;if(l.length)hl=true;}}if(hl){for(const m of mods){if(seed[m].length)await db.from('dashboard_data').upsert({module:m,data:seed[m],updated_at:new Date()},{onConflict:'module'});}}return seed;}catch(e){setSyncStatus(false,'❌ '+(e.message||e.code||''));return null;}}
+async function bootstrap(){try{console.log("[bootstrap] start");const{data,error}=await db.from('dashboard_data').select('module,data');if(error){console.error("[bootstrap] err:",error);throw error;}console.log("[bootstrap] ok, data:",data&&data.length);setSyncStatus(true);try{setupRealtime();}catch(e){}const seed={};if(data)data.forEach(r=>{if(Array.isArray(r.data))seed[r.module]=r.data;});const mods=['todos','life','travel','mood','exercise','engstudy','weight'];let hl=false;for(const m of mods){if(!seed[m]){const l=loadLocal(m);seed[m]=l;if(l.length)hl=true;}}if(hl){for(const m of mods){if(seed[m].length)await db.from('dashboard_data').upsert({module:m,data:seed[m],updated_at:new Date()},{onConflict:'module'});}}return seed;}catch(e){console.error("[bootstrap] catch:",e.message||e);setSyncStatus(false,'❌ '+(e.message||e.code||''));return null;}}
 
 
 
