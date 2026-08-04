@@ -4912,11 +4912,11 @@ function renderScheduleMonth(){
 
 
 
-  h+='<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px">';
+  h+='<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:1px;border:1px solid #eee;border-radius:6px">';
 
   for(let i=firstDay-1;i>=0;i--){
 
-    h+='<div style="min-height:72px;background:#fafaf9;border-radius:6px;padding:4px;opacity:.5;overflow:hidden"><div style="font-size:11px;color:var(--text-light)">'+(prevLast-i)+'</div></div>';
+    h+='<div style="min-height:72px;background:#fafaf9;padding:4px;opacity:.5;overflow:hidden"><div style="font-size:11px;color:var(--text-light)">'+(prevLast-i)+'</div></div>';
 
   }
 
@@ -4928,9 +4928,9 @@ function renderScheduleMonth(){
 
     const isToday=ds===ts;
 
-    let cls='background:#fff;border-radius:6px;padding:3px;min-height:70px;border:1px solid #eee;cursor:pointer;transition:all .2s;overflow:hidden;width:100%';
+    let cls='background:#fff;padding:3px 2px;min-height:70px;cursor:pointer;overflow:hidden';
 
-    if(isToday)cls='background:var(--accent-bg);border-radius:6px;padding:3px;min-height:70px;border:1.5px solid var(--accent);cursor:pointer;overflow:hidden;width:100%';
+    if(isToday)cls='background:var(--accent-bg);padding:3px 2px;min-height:70px;cursor:pointer;overflow:hidden';
 
     h+='<div style="'+cls+'" onclick="calSelect(\''+ds+'\')"><div style="font-size:11px;font-weight:500;margin-bottom:2px;color:'+(isToday?'var(--accent)':'var(--text)')+'"><span>'+d+'</span>'+(d===1?'<span style="font-size:8px;color:var(--text-light);font-weight:400;float:right">'+lunarMonth(first)+'</span>':'')+'</div><div style="display:flex;flex-direction:column;gap:1px">';
 
