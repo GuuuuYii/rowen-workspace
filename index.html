@@ -24958,7 +24958,7 @@ const SUPABASE_KEY='sb_publishable_72YhJ6ANGV_sxAVLkdEuiw_zs58Kd89';
 
 
 
-const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:false,autoRefreshToken:false},global:{headers:{'x-client-info':'dashboard'}}});
 
 
 
@@ -30829,6 +30829,7 @@ async function toggleHomeCheckin(cat){const d=fmtDate(new Date());if(cat==='engl
 
 
 
+function currentDay(){return new Date().getHours()>=18?'tomorrow':'today';}function yesterdayStr(){const d=new Date();d.setDate(d.getDate()-1);return fmtDate(d);}
 function renderTodo(){
 try{
 const ts=fmtDate(new Date()),ys=yesterdayStr();
