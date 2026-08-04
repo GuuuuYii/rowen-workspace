@@ -1634,7 +1634,7 @@ let todos=[],lifeItems=[],travels=[],moods=[],exercises=[],weights=[],selectedMo
 
 
 
-let activeDay='today',activeSubTarget=null,bodyTrack='exercise',currentModule='home',calYear=0,calMonth=0,calSelected=null,todoTab='today';
+let activeDay='today',activeSubTarget=null,bodyTrack='exercise',currentModule='home',calYear=0,calMonth=0,calSelected=null,todoTab='today',todoDateType='today',todoCustomDate='';
 
 
 
@@ -2026,7 +2026,7 @@ const dt=todos.filter(t=>t.day===activeDay).sort((a,b)=>a.order-b.order);
 
 
 
-let h=`<div class="todo-top"><input type="text" class="todo-quick-input" id="todo-quick-input" placeholder="今天要做什么？" maxlength="60" onkeydown="if(event.key==='Enter')openAddTask()"><button class="todo-add-btn" onclick="openAddTask()">+</button></div>`;
+let h=`<div class="todo-top"><input type="text" class="todo-quick-input" id="todo-quick-input" placeholder="今天要做什么？" maxlength="60" onkeydown="if(event.key==='Enter')addTodo()"><button class="todo-add-btn" onclick="addTodo()">+</button></div><div style="display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap;align-items:center"><span style="font-size:11px;color:var(--text-light);margin-right:4px">日期:</span><label class="at-date-chip ${todoDateType==='today'?'active':''}" onclick="todoDateType='today';todoCustomDate='';renderTodo();">今天</label><label class="at-date-chip ${todoDateType==='tomorrow'?'active':''}" onclick="todoDateType='tomorrow';todoCustomDate='';renderTodo();">明天</label><label class="at-date-chip ${todoDateType==='custom'?'active':''}" onclick="todoDateType='custom';renderTodo();">自选</label>${todoDateType==='custom'?'<input type="date" id="todo-date-pick" value="'+(todoCustomDate||'')+'" onchange="todoCustomDate=this.value;renderTodo();" style="border:1px solid var(--border);border-radius:6px;padding:4px 8px;font-size:12px;background:#fff">':''}</div>`;
 
 
 
@@ -2126,7 +2126,7 @@ function bindTodoEvents(){document.querySelectorAll('.todo-tab').forEach(t=>{t.a
 
 
 
-async function addTodo(){const t=$('#todo-input')?.value?.trim();if(!t)return toast('请输入任务');const tm=$('#todo-time')?.value||'',ts=fmtDate(new Date());const mx=Math.max(...todos.filter(x=>x.day===activeDay).map(x=>x.order),0);todos.push({id:Date.now().toString(),text:t,time:tm,day:activeDay,date:ts,done:false,order:mx+1,subtasks:[],note:'',migrated:false});await saveCloud('todos',todos);renderTodo();}
+async function addTodo(){const t=$('#todo-quick-input')?.value?.trim();if(!t){console.log('falling back to old input');return;}if(!t)return toast('请输入任务');const tm='';const n=new Date();const ts=fmtDate(n);const tomorrow=new Date(n);tomorrow.setDate(n.getDate()+1);const tms=fmtDate(tomorrow);let targetDate, targetDay;if(todoDateType==='custom'&&todoCustomDate){targetDate=todoCustomDate;targetDay=targetDate===ts?'today':'tomorrow';}else if(todoDateType==='tomorrow'){targetDate=tms;targetDay='tomorrow';}else{targetDate=ts;targetDay=activeDay;}const mx=Math.max(...todos.filter(x=>x.day===targetDay).map(x=>x.order),0);todos.push({id:Date.now().toString(),text:t,time:tm,day:targetDay,date:targetDate,done:false,order:mx+1,subtasks:[],note:'',migrated:false});await saveCloud('todos',todos);$('#todo-quick-input').value='';todoDateType='today';todoCustomDate='';renderTodo();}
 
 
 
