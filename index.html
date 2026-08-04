@@ -143785,6 +143785,30 @@ function getEventsOnDay(ds){const evts=[];todos.filter(t=>t.date===ds).forEach(t
 
 
 
+
+(async function(){
+  console.log('[init] starting');
+  const s=await bootstrap();
+  console.log('[init] bootstrap returned:',!!s);
+  if(s){
+    todos=s.todos||[];
+    lifeItems=s.life||[];
+    travels=s.travel||[];
+    moods=s.mood||[];
+    exercises=s.exercise||[];
+    engStudies=s.engstudy||[];
+    weights=s.weight||[];
+  }else{
+    todos=loadLocal('todos');
+    lifeItems=loadLocal('life');
+    travels=loadLocal('travel');
+    moods=loadLocal('mood');
+    exercises=loadLocal('exercise');
+    engStudies=loadLocal('engstudy');
+    weights=loadLocal('weight');
+  }
+  renderCurrent();
+})();
 </script>
 
 
