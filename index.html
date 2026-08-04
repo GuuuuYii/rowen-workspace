@@ -61684,8 +61684,7 @@ const dt=todos.filter(t=>t.day===activeDay).sort((a,b)=>a.order-b.order);
 
 let h = `<div class="todo-top"><input type="text" class="todo-quick-input" id="todo-quick-input" placeholder="\u4eca\u5929\u8981\u505a\u4ec0\u4e48\uff1f" maxlength="60" onkeydown="if(event.key==='Enter')addTodo()"><button class="todo-add-btn" onclick="addTodo()">+</button></div>`;
 
-h += `<div style="display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap;align-items:center"><span style="font-size:11px;color:var(--text-light);margin-right:4px">\u65e5\u671f:</span>`;
-
+h += `<div style="display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap;align-items:center"><span style="font-size:11px;color:var(--text-light);margin-right:4px">\u5206\u7c7b:</span><select id="todo-cat-sel" onchange="catSelect=this.value;renderTodo()" style="border:1px solid var(--border);border-radius:6px;padding:4px 8px;font-size:12px;background:#fff"><option value="work" ${catSelect==='work'?'selected':''}>\u5de5\u4f5c</option><option value="schedule" ${catSelect==='schedule'?'selected':''}>\u65e5\u7a0b</option><option value="life" ${catSelect==='life'?'selected':''}>\u751f\u6d3b</option></select><span style="width:10px;height:10px;border-radius:50%;background:${catColors[catSelect]||'#a5b8a0'};display:inline-block"></span><span style="font-size:11px;color:var(--text-light);margin:0 4px">\u65e5\u671f:</span>`;
 h += `<label class="at-date-chip ${todoDateType==='today'?'active':''}" onclick="todoDateType='today';todoCustomDate='';renderTodo();">\u4eca\u5929</label>`;
 
 h += `<label class="at-date-chip ${todoDateType==='tomorrow'?'active':''}" onclick="todoDateType='tomorrow';todoCustomDate='';renderTodo();">\u660e\u5929</label>`;
