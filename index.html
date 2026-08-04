@@ -2444,37 +2444,37 @@ function renderScheduleMonth(){
   const n=new Date(),ts=fmtDate(n);
   if(!calYear){calYear=n.getFullYear();calMonth=n.getMonth();}
   const first=new Date(calYear,calMonth,1);
-  const firstDay=first.getDay();
+  const firstDay=(first.getDay()+6)%7; // Monday=0
   const lastDay=new Date(calYear,calMonth+1,0).getDate();
   const prevLast=new Date(calYear,calMonth,0).getDate();
 
   let h='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px"><div style="font-size:16px;font-weight:500">'+calYear+'\u5e74'+(calMonth+1)+'\u6708</div><div style="display:flex;gap:6px"><button onclick="calPrev()" style="width:28px;height:28px;border:1px solid var(--border);border-radius:50%;background:#fff;cursor:pointer;font-size:14px">\u2039</button><button onclick="calToday()" style="padding:0 12px;height:28px;border:1px solid var(--border);border-radius:14px;background:#fff;cursor:pointer;font-size:12px;color:var(--text-soft)">\u4eca</button><button onclick="calNext()" style="width:28px;height:28px;border:1px solid var(--border);border-radius:50%;background:#fff;cursor:pointer;font-size:14px">\u203a</button></div></div>';
 
   h+='<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:4px">';
-  const wdArr=['\u65e5','\u4e00','\u4e8c','\u4e09','\u56db','\u4e94','\u516d'];
-  for(let i=0;i<7;i++){h+='<div style="text-align:center;font-size:11px;color:var(--text-light);padding:4px 0;font-weight:500">\u5468'+wdArr[i]+'</div>';}
+  const wdArr=['\u4e00','\u4e8c','\u4e09','\u56db','\u4e94','\u516d','\u65e5'];
+  for(let i=0;i<7;i++){h+='<div style="text-align:center;font-size:11px;color:var(--text-light);padding:4px 0;font-weight:500;width:100%">\u5468'+wdArr[i]+'</div>';}
   h+='</div>';
 
   h+='<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px">';
   for(let i=firstDay-1;i>=0;i--){
-    h+='<div style="min-height:72px;background:#fafaf9;border-radius:6px;padding:4px;opacity:.5"><div style="font-size:11px;color:var(--text-light)">'+(prevLast-i)+'</div></div>';
+    h+='<div style="min-height:72px;background:#fafaf9;border-radius:6px;padding:4px;opacity:.5;overflow:hidden"><div style="font-size:11px;color:var(--text-light)">'+(prevLast-i)+'</div></div>';
   }
   for(let d=1;d<=lastDay;d++){
     const ds=fmtDate(new Date(calYear,calMonth,d));
     const evts=getEventsOnDay(ds);
     const isToday=ds===ts;
-    let cls='background:#fff;border-radius:6px;padding:4px;min-height:72px;border:1px solid #eee;cursor:pointer;transition:all .2s';
-    if(isToday)cls='background:var(--accent-bg);border-radius:6px;padding:4px;min-height:72px;border:1.5px solid var(--accent);cursor:pointer';
-    h+='<div style="'+cls+'" onclick="calSelect(\''+ds+'\')"><div style="font-size:11px;font-weight:500;margin-bottom:3px;color:'+(isToday?'var(--accent)':'var(--text)')+';display:flex;justify-content:space-between"><span>'+d+'</span><span style="font-size:9px;color:var(--text-light);font-weight:400">'+(d===1?lunarMonth(first):'')+'</span></div><div style="display:flex;flex-direction:column;gap:2px">';
+    let cls='background:#fff;border-radius:6px;padding:3px;min-height:70px;border:1px solid #eee;cursor:pointer;transition:all .2s;overflow:hidden;width:100%';
+    if(isToday)cls='background:var(--accent-bg);border-radius:6px;padding:3px;min-height:70px;border:1.5px solid var(--accent);cursor:pointer;overflow:hidden;width:100%';
+    h+='<div style="'+cls+'" onclick="calSelect(\''+ds+'\')"><div style="font-size:11px;font-weight:500;margin-bottom:2px;color:'+(isToday?'var(--accent)':'var(--text)')+'"><span>'+d+'</span>'+(d===1?'<span style="font-size:8px;color:var(--text-light);font-weight:400;float:right">'+lunarMonth(first)+'</span>':'')+'</div><div style="display:flex;flex-direction:column;gap:1px">';
     const shown=evts.slice(0,3);
-    for(let e of shown){h+='<div style="background:'+tagColor(e.type)+';color:#fff;font-size:9px;padding:1px 4px;border-radius:3px;line-height:1.4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;'+((e.done?'opacity:.5;text-decoration:line-through':''))+'">'+escHtml(e.text||e.tag)+'</div>';}
-    if(evts.length>3)h+='<div style="font-size:9px;color:var(--text-light);padding:1px 0">+'+((evts.length-3))+'</div>';
+    for(let e of shown){h+='<div style="background:'+tagColor(e.type)+';color:#fff;font-size:7px;padding:1px 3px;border-radius:2px;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%">'+escHtml(e.text||e.tag)+'</div>';}
+    if(evts.length>3)h+='<div style="font-size:7px;color:var(--text-light);padding:0">+'+((evts.length-3))+'</div>';
     h+='</div></div>';
   }
   const totalCells=firstDay+lastDay;
   const trailing=totalCells%7===0?0:7-totalCells%7;
   for(let i=1;i<=trailing;i++){
-    h+='<div style="min-height:72px;background:#fafaf9;border-radius:6px;padding:4px;opacity:.5"><div style="font-size:11px;color:var(--text-light)">'+i+'</div></div>';
+    h+='<div style="min-height:70px;background:#fafaf9;border-radius:6px;padding:3px;opacity:.5;overflow:hidden;width:100%"><div style="font-size:11px;color:var(--text-light)">'+i+'</div></div>';
   }
   h+='</div>';
 
@@ -2491,6 +2491,7 @@ function renderScheduleMonth(){
 
   return h;
 }
+
 
 function calPrev(){calMonth--;if(calMonth<0){calMonth=11;calYear--;}calSelected=null;renderTodo();}
 function calNext(){calMonth++;if(calMonth>11){calMonth=0;calYear++;}calSelected=null;renderTodo();}
