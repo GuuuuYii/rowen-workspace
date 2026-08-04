@@ -2371,51 +2371,56 @@ function setTodoView(m){todoViewMode=m;renderTodo();}
 
 
 function renderScheduleDetail(){
-
   const n=new Date(),ts=fmtDate(n);
+  const tmsDate=new Date(n);tmsDate.setDate(n.getDate()+1);const tms=fmtDate(tmsDate);
+  const wd=['\u65e5','\u4e00','\u4e8c','\u4e09','\u56db','\u4e94','\u516d'];
 
-  const tod=todos.filter(t=>t.date===ts).sort((a,b)=>a.order-b.order);
+  let h='<div style="font-size:13px;color:var(--text-light);margin-bottom:12px">\u672a\u676930\u5929\u65e5\u7a0b</div>';
 
-  const trv=travels.filter(t=>t.date===ts);
+  for(let i=0;i<30;i++){
+    const cur=new Date(n);cur.setDate(n.getDate()+i);
+    const ds=fmtDate(cur);
+    const tod=todos.filter(t=>t.date===ds).sort((a,b)=>a.order-b.order);
+    const trv=travels.filter(t=>t.date===ds);
+    const md=moods.filter(m=>m.date&&m.date.startsWith(ds));
 
-  const md=moods.filter(m=>m.date&&m.date.startsWith(ts));
+    if(!tod.length&&!trv.length&&!md.length)continue;
 
-  const wd=['日','一','二','三','四','五','六'][n.getDay()];
+    let label, dateInfo;
+    if(i===0){
+      label='\u4eca\u5929';
+      dateInfo=ds;
+    }else if(i===1){
+      label='\u660e\u5929';
+      dateInfo=ds;
+    }else{
+      label='\u5468'+wd[cur.getDay()]+' '+(cur.getMonth()+1)+'\u6708'+cur.getDate()+'\u65e5';
+      dateInfo='';
+    }
+    const dayTitle=i<=1?label+'\uff08'+ds+'\uff09':label;
 
-  let h=`<div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:14px"><div style="font-size:15px;font-weight:600">今天 (${ts})</div><div style="font-size:12px;color:var(--text-light)">星期${wd}</div></div>`;
+    h+='<div style="margin-bottom:16px;border-left:3px solid var(--accent);padding-left:12px">';
+    h+='<div style="display:flex;align-items:baseline;gap:8px;margin-bottom:8px"><span style="font-size:15px;font-weight:600">'+dayTitle+'</span><span style="font-size:11px;color:var(--text-light)">\u661f\u671f'+wd[cur.getDay()]+'</span></div>';
 
-  const sections=[];
+    const allItems=[];
+    tod.forEach(t=>{allItems.push({tag:'\u5f85\u529e',type:'todo',text:t.text,time:t.time||'',done:t.done,date:ds});});
+    trv.forEach(t=>{allItems.push({tag:'\u65c5\u884c',type:'travel',text:t.location,time:t.date||'',done:false,date:ds});});
+    md.forEach(m=>{allItems.push({tag:'\u5fc3\u60c5',type:'mood',text:m.mood+' '+(m.note||''),time:m.date&&m.date.indexOf(' ')>0?m.date.substring(m.date.indexOf(' ')+1):'',done:false,date:ds});});
 
-  if(tod.length)sections.push({title:'待办',count:tod.length,items:tod.map(t=>({tag:'todo',text:t.text,time:t.time||'',done:t.done}))});
-
-  if(trv.length)sections.push({title:'旅行',count:trv.length,items:trv.map(t=>({tag:'travel',text:t.location,note:t.note,time:t.date||''}))});
-
-  if(md.length)sections.push({title:'心情',count:md.length,items:md.map(m=>({tag:'mood',text:m.mood+' '+(m.note||''),time:m.date&&m.date.indexOf(' ')>0?m.date.substring(m.date.indexOf(' ')+1):''}))});
-
-  if(!sections.length)h+=`<div class="empty-state" style="padding:20px">今天还没有记录 ✦</div>`;
-
-  else{sections.forEach(s=>{
-
-    h+=`<div style="margin-bottom:14px"><div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text-soft);margin-bottom:8px;font-weight:500"><span>${s.title}</span><span>${s.count}</span></div>`;
-
-    h+=s.items.map(it=>{
-
-      const tagText=it.tag==='todo'?'待办':it.tag==='travel'?'旅行':'心情';
-
-      const tagBg=tagColor(it.tag);
-
-      const showTime=it.time||'';
-
-      return `<div style="display:flex;align-items:center;padding:8px 0;font-size:13px;border-bottom:1px solid #f0f0ee;gap:10px"><span class="cal-tag" style="background:${tagBg};flex-shrink:0">${tagText}</span><span style="flex:1;${it.done?'text-decoration:line-through;color:var(--text-light)':''}">${escHtml(it.text)}</span><span style="color:var(--text-light);font-size:11px;flex-shrink:0;font-variant-numeric:tabular-nums;min-width:54px;text-align:right">${escHtml(showTime)}</span></div>`;
-
-    }).join('');
-
+    if(allItems.length){
+      allItems.forEach(it=>{
+        h+='<div style="display:flex;align-items:center;padding:7px 0;font-size:13px;border-bottom:1px solid #f0f0ee;gap:10px">';
+        h+='<span class="cal-tag" style="background:'+tagColor(it.type)+';flex-shrink:0">'+it.tag+'</span>';
+        h+='<span style="flex:1;'+(it.done?'text-decoration:line-through;color:var(--text-light)':'')+'">'+escHtml(it.text)+'</span>';
+        h+='<span style="color:var(--text-light);font-size:11px;flex-shrink:0;text-align:right">'+escHtml(it.time)+'</span>';
+        h+='</div>';
+      });
+    }
     h+='</div>';
+  }
 
-  });}
-
+  if(!h.includes('border-left'))h+='<div class="empty-state" style="padding:20px">\u672a\u676930\u5929\u6682\u65e0\u8bb0\u5f55 \u2726</div>';
   return h;
-
 }
 
 
