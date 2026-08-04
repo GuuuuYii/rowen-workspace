@@ -30839,49 +30839,52 @@ if(mg>0)saveCloud('todos',todos);
 todos.forEach(t=>{if(!t.done&&t.date===ts&&!t.migrated)t.day='today';});
 const dt=todos.filter(t=>t.day===activeDay).sort((a,b)=>a.order-b.order);
 
-let h='<div class="todo-top"><input type="text" class="todo-quick-input" id="todo-quick-input" placeholder="\u4eca\u5929\u8981\u505a\u4ec0\u4e48\uff1f" maxlength="60" onkeydown="if(event.key===\'Enter\')addTodo()"><button class="todo-add-btn" onclick="addTodo()">+</button></div>';
-h+='<div style="display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap;align-items:center"><span style="font-size:11px;color:var(--text-light);margin-right:4px">\u65e5\u671f:</span>';
-h+='<label class="at-date-chip ${todoDateType===\'today\'?\'active\':\'\'}" onclick="todoDateType=\'today\';todoCustomDate=\'\';renderTodo();">\u4eca\u5929</label>';
-h+='<label class="at-date-chip ${todoDateType===\'tomorrow\'?\'active\':\'\'}" onclick="todoDateType=\'tomorrow\';todoCustomDate=\'\';renderTodo();">\u660e\u5929</label>';
-h+='<label class="at-date-chip ${todoDateType===\'custom\'?\'active\':\'\'}" onclick="todoDateType=\'custom\';renderTodo();">\u81ea\u9009</label>';
-h+='${todoDateType===\'custom\'?\'<input type=\"date\" id=\"todo-date-pick\" value=\"\'+(todoCustomDate||\'\')+\'\" onchange=\"todoCustomDate=this.value;renderTodo();\" style=\"border:1px solid var(--border);border-radius:6px;padding:4px 8px;font-size:12px;background:#fff\">\':\'\'}';
-h+='</div>';
+let h = `<div class="todo-top"><input type="text" class="todo-quick-input" id="todo-quick-input" placeholder="\u4eca\u5929\u8981\u505a\u4ec0\u4e48\uff1f" maxlength="60" onkeydown="if(event.key==='Enter')addTodo()"><button class="todo-add-btn" onclick="addTodo()">+</button></div>`;
+h += `<div style="display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap;align-items:center"><span style="font-size:11px;color:var(--text-light);margin-right:4px">\u65e5\u671f:</span>`;
+h += `<label class="at-date-chip ${todoDateType==='today'?'active':''}" onclick="todoDateType='today';todoCustomDate='';renderTodo();">\u4eca\u5929</label>`;
+h += `<label class="at-date-chip ${todoDateType==='tomorrow'?'active':''}" onclick="todoDateType='tomorrow';todoCustomDate='';renderTodo();">\u660e\u5929</label>`;
+h += `<label class="at-date-chip ${todoDateType==='custom'?'active':''}" onclick="todoDateType='custom';renderTodo();">\u81ea\u9009</label>`;
+h += todoDateType==='custom'?`<input type="date" id="todo-date-pick" value="${todoCustomDate||''}" onchange="todoCustomDate=this.value;renderTodo();" style="border:1px solid var(--border);border-radius:6px;padding:4px 8px;font-size:12px;background:#fff">`:'';
+h += `</div>`;
 
-if(mg>0)h+='<div class="todo-migrate">\ud83d\udce5 \u6628\u5929 <b>${mg}</b> \u9879\u672a\u5b8c\u6210\uff0c\u5df2\u79fb\u5165\u4eca\u5929</div>';
+if(mg>0) h += `<div class="todo-migrate">\ud83d\udce5 \u6628\u5929 <b>${mg}</b> \u9879\u672a\u5b8c\u6210\uff0c\u5df2\u79fb\u5165\u4eca\u5929</div>`;
 
 if(dt.length){
-  h+='<div class="todo-list">';
+  h += `<div class="todo-list">`;
   for(const t of dt){
     const sdone=(t.subtasks||[]).filter(s=>s.done).length;
     const stotal=(t.subtasks||[]).length;
-    h+='<div class="todo-item ${t.done?\'done\':\'\'}" draggable="true" data-id="${t.id}" ondragstart="onDragStart(event)" ondragover="onDragOver(event)" ondragend="onDragEnd(event)" ondrop="onDrop(event)">';
-    h+='<div class="todo-drag"><span></span><span></span></div>';
-    h+='<input type="checkbox" class="todo-cb" ${t.done?\'checked\':\'\'} onchange="toggleTodo(\'${t.id}\')">';
-    h+='<div class="todo-body"><div class="todo-text">${escHtml(t.text)}</div>';
-    h+='<div class="todo-meta">';
-    if(t.time)h+='<span class="todo-time">\u23f0 ${t.time}</span>';
-    if(stotal)h+='<span class="todo-sub-count" onclick="toggleSubView(\'${t.id}\')">\ud83d\udcce ${sdone}/${stotal}</span>';
-    if(t.migrated)h+='<span style="color:var(--accent)">\ud83d\udce5 \u6628\u65e5</span>';
-    h+='</div></div>';
-    h+='<div class="todo-actions"><button class="btn-del" onclick="event.stopPropagation();startAddSub(\'${t.id}\')">+</button><button class="btn-del" onclick="event.stopPropagation();removeTodo(\'${t.id}\')">\u00d7</button></div>';
-    h+='</div>';
-    h+='<div class="todo-subtasks ${activeSubTarget===t.id?\'show\':\'\'}" id="subs-${t.id}">';
+    h += `<div class="todo-item ${t.done?'done':''}" draggable="true" data-id="${t.id}" ondragstart="onDragStart(event)" ondragover="onDragOver(event)" ondragend="onDragEnd(event)" ondrop="onDrop(event)">`;
+    h += `<div class="todo-drag"><span></span><span></span></div>`;
+    h += `<input type="checkbox" class="todo-cb" ${t.done?'checked':''} onchange="toggleTodo('${t.id}')">`;
+    h += `<div class="todo-body"><div class="todo-text">${escHtml(t.text)}</div>`;
+    h += `<div class="todo-meta">`;
+    if(t.time) h += `<span class="todo-time">\u23f0 ${t.time}</span>`;
+    if(stotal) h += `<span class="todo-sub-count" onclick="toggleSubView('${t.id}')">\ud83d\udcce ${sdone}/${stotal}</span>`;
+    if(t.migrated) h += `<span style="color:var(--accent)">\ud83d\udce5 \u6628\u65e5</span>`;
+    h += `</div></div>`;
+    h += `<div class="todo-actions"><button class="btn-del" onclick="event.stopPropagation();startAddSub('${t.id}')">+</button><button class="btn-del" onclick="event.stopPropagation();removeTodo('${t.id}')">\u00d7</button></div>`;
+    h += `</div>`;
+    h += `<div class="todo-subtasks ${activeSubTarget===t.id?'show':''}" id="subs-${t.id}">`;
     for(const s of (t.subtasks||[])){
-      h+='<div class="todo-sub-item ${s.done?\'done\':\'\'}"><input type="checkbox" class="todo-cb" ${s.done?\'checked\':\'\'} onchange="toggleSub(\'${t.id}\',\'${s.id}\')"><span class="sub-text">${escHtml(s.text)}</span><button class="btn-del" style="opacity:.4;width:16px;height:16px;font-size:11px" onclick="removeSub(\'${t.id}\',\'${s.id}\')">\u00d7</button></div>';
+      h += `<div class="todo-sub-item ${s.done?'done':''}"><input type="checkbox" class="todo-cb" ${s.done?'checked':''} onchange="toggleSub('${t.id}','${s.id}')"><span class="sub-text">${escHtml(s.text)}</span><button class="btn-del" style="opacity:.4;width:16px;height:16px;font-size:11px" onclick="removeSub('${t.id}','${s.id}')">\u00d7</button></div>`;
     }
-    h+='<div class="todo-sub-item" style="opacity:.6;cursor:pointer" onclick="startAddSub(\'${t.id}\')">+ \u6dfb\u52a0\u5b50\u4efb\u52a1</div>';
-    h+='</div>';
+    h += `<div class="todo-sub-item" style="opacity:.6;cursor:pointer" onclick="startAddSub('${t.id}')">+ \u6dfb\u52a0\u5b50\u4efb\u52a1</div>`;
+    h += `</div>`;
   }
-  h+='</div>';
-}else{h+='<div class="empty-state">${activeDay===\'today\'?\'\u4eca\u5929\u6682\u65f6\u7a7a\u767d\uff0c\u6dfb\u52a0\u4f60\u7684\u7b2c\u4e00\u4e2a\u4efb\u52a1 \u2726\':\'\u4e3a\u660e\u5929\u505a\u597d\u51c6\u5907 \ud83c\udf19\'}</div>';}
+  h += `</div>`;
+} else {
+  h += `<div class="empty-state">${activeDay==='today'?'\u4eca\u5929\u6682\u65f6\u7a7a\u767d\uff0c\u6dfb\u52a0\u4f60\u7684\u7b2c\u4e00\u4e2a\u4efb\u52a1 \u2726':'\u4e3a\u660e\u5929\u505a\u597d\u51c6\u5907 \ud83c\udf19'}</div>`;
+}
 
-h+='<div class="card"><div class="card-header"><div class="card-title"><span class="dot"></span>\u65e5\u7a0b\u6982\u89c8</div><div class="schedule-tabs"><button class="schedule-tab ${todoViewMode===\'detail\'?\'active\':\'\'}" onclick="todoViewMode=\'detail\';renderTodo();">\u6309\u65e5</button><button class="schedule-tab ${todoViewMode===\'month\'?\'active\':\'\'}" onclick="todoViewMode=\'month\';renderTodo();">\u6309\u6708</button></div></div><div id="todo-schedule-area">${todoViewMode===\'detail\'?renderScheduleDetail():renderScheduleMonth()}</div></div>';
+h += `<div class="card"><div class="card-header"><div class="card-title"><span class="dot"></span>\u65e5\u7a0b\u6982\u89c8</div><div class="schedule-tabs"><button class="schedule-tab ${todoViewMode==='detail'?'active':''}" onclick="todoViewMode='detail';renderTodo();">\u6309\u65e5</button><button class="schedule-tab ${todoViewMode==='month'?'active':''}" onclick="todoViewMode='month';renderTodo();">\u6309\u6708</button></div></div><div id="todo-schedule-area">${todoViewMode==='detail'?renderScheduleDetail():renderScheduleMonth()}</div></div>`;
 
-$('#module-content').innerHTML='<div class="card"><div class="card-header"><div class="card-title"><span class="dot"></span>Todo</div><div class="todo-tabs">'+['today','tomorrow'].map(d=>'<button class="todo-tab ${activeDay===d?\'active\':\'\'}" data-day="${d}">${d===\'today\'?\'\u4eca\u5929\':\'\u660e\u5929\'}</button>').join('')+'</div></div>'+h+'</div>';
+$('#module-content').innerHTML = `<div class="card"><div class="card-header"><div class="card-title"><span class="dot"></span>Todo</div><div class="todo-tabs">${['today','tomorrow'].map(d=>`<button class="todo-tab ${activeDay===d?'active':''}" data-day="${d}">${d==='today'?'\u4eca\u5929':'\u660e\u5929'}</button>`).join('')}</div></div>${h}</div>`;
 bindTodoEvents();
 if(todoViewMode==='month')bindCalendarCells();
-}catch(e){$('#module-content').innerHTML='<div class="card"><div class="card-header"><div class="card-title"><span class="dot"></span>Todo</div></div><div style="color:#c88;padding:20px;font-size:13px">\u9519\u8bef: '+e.message+'</div></div>';}
+}catch(e){$('#module-content').innerHTML=`<div class="card"><div class="card-header"><div class="card-title"><span class="dot"></span>Todo</div></div><div style="color:#c88;padding:20px;font-size:13px">\u9519\u8bef: ${e.message}</div></div>`;}
 }
+
 
 function bindTodoEvents(){document.querySelectorAll('.todo-tab').forEach(t=>{t.addEventListener('click',()=>{document.querySelectorAll('.todo-tab').forEach(x=>x.classList.remove('active'));t.classList.add('active');activeDay=t.dataset.day;activeSubTarget=null;renderTodo();});});$('#todo-input')?.addEventListener('keydown',e=>{if(e.key==='Enter')addTodo();});$('#sub-input')?.addEventListener('keydown',e=>{if(e.key==='Enter')addSubToActive();});}
 
